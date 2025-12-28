@@ -23,11 +23,13 @@
         .container.active { display: flex; }
         .l3-card { background: var(--card-white); border-radius: 40px; padding: 40px 30px; box-shadow: 0 20px 50px rgba(0, 43, 91, 0.04); border: 1px solid rgba(0, 43, 91, 0.02); text-align: center; width: 100%; position: relative; }
         
+        /* 🔒 ロック演出 */
         .lock-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); z-index: 100; display: none; align-items: center; justify-content: center; border-radius: 40px; }
         .lock-msg { background: var(--l3-navy); color: #fff; padding: 15px 25px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.2em; }
         .locked .lock-overlay { display: flex; }
         .locked > *:not(.lock-overlay) { pointer-events: none; }
 
+        /* MY PAGE デザイン固定 */
         .membership-card { border-top: 1px solid rgba(0, 43, 91, 0.1); }
         .member-status { font-size: 0.65rem; letter-spacing: 0.4em; font-weight: 500; opacity: 0.4; margin-bottom: 20px; display: block; text-transform: uppercase; }
         .member-name { font-family: 'Shippori Mincho', serif; font-size: 2.5rem; margin: 15px 0; font-weight: 800; letter-spacing: 0.15em; color: var(--l3-navy); line-height: 1.1; }
@@ -36,11 +38,9 @@
         .glass-frame { fill: none; stroke: var(--l3-navy); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
         .sand-fill { fill: var(--l3-lime); }
         .sand-grain { fill: var(--l3-lime); opacity: 0.6; }
-
         .remain-label { font-size: 0.65rem; font-weight: 500; opacity: 0.3; letter-spacing: 0.3em; margin-bottom: 5px; }
         .remain-val { font-size: 2.6rem; color: var(--l3-navy); font-weight: 800; letter-spacing: -0.02em; }
         .remain-unit { font-size: 0.8rem; font-weight: 500; opacity: 0.4; letter-spacing: 0.1em; margin-left: 5px;}
-
         .btn-attendance { width: 100%; padding: 22px; border-radius: 24px; background: var(--l3-navy); color: #fff; font-weight: 800; font-size: 1.1rem; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; transition: transform 0.1s; }
         .btn-attendance:active { transform: scale(0.96); }
 
@@ -50,23 +50,19 @@
         .slot { aspect-ratio: 1/1; background: #f9fafb; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700; color: #dce3e9; border: 1px solid #f0f3f6; }
         .slot.filled { background: var(--l3-navy); color: var(--l3-lime); border: none; }
         
-        /* 🟢 復元：ご意見箱のテキストボックス */
+        /* ご意見箱復元 */
         .feedback-area { width: 100%; min-height: 100px; border-radius: 20px; border: 1px solid rgba(0, 43, 91, 0.1); background: #f9fafb; padding: 18px; font-family: inherit; font-size: 0.95rem; color: var(--l3-navy); resize: none; margin-bottom: 15px; outline: none; display: block; }
         
         .btn-edit-trigger { background: transparent; color: var(--l3-navy); border: 1px solid var(--l3-navy); padding: 12px; border-radius: 15px; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.2em; cursor: pointer; width: 100%; margin-top: 15px; }
         
-        /* 🖼️ 復元：編集モーダル内ボタンのデザイン */
         #edit-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,43,91,0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 3000; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-card { background: #fff; width: 100%; max-width: 360px; border-radius: 40px; padding: 40px 30px; position: relative; max-height: 90vh; overflow-y: auto; text-align: center; }
-        .modal-title { font-family: 'Shippori Mincho', serif; font-size: 1.5rem; font-weight: 800; color: var(--l3-navy); margin-bottom: 30px; }
-        .form-group { text-align: left; margin-bottom: 20px; }
-        .form-label { font-size: 0.6rem; font-weight: 800; opacity: 0.4; letter-spacing: 0.1em; margin-bottom: 8px; display: block; }
-        .form-input { width: 100%; padding: 14px; border-radius: 15px; border: 1px solid rgba(0,43,91,0.1); background: #f9fafb; font-size: 0.9rem; color: var(--l3-navy); outline: none; }
+        .modal-card { background: #fff; width: 100%; max-width: 360px; border-radius: 40px; padding: 40px 30px; text-align: center; }
         .btn-save { width: 100%; padding: 18px; border-radius: 20px; background: var(--l3-navy); color: #fff; font-weight: 800; border: none; margin-top: 20px; cursor: pointer; display: block; }
         .btn-cancel { width: 100%; background: transparent; color: var(--l3-navy); opacity: 0.4; font-size: 0.7rem; font-weight: 800; border: none; margin-top: 15px; cursor: pointer; display: block; }
 
+        /* LIST デザイン固定 */
         .list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
-        .member-item { background: #fff; border-radius: 28px; padding: 20px 15px; border: 1px solid rgba(0,43,91,0.04); text-align: center; }
+        .member-item { background: #fff; border-radius: 28px; padding: 20px 15px; border: 1px solid rgba(0,43,91,0.04); text-align: center; transition: all 0.3s; }
         .member-item.is-me { border: 2.5px solid var(--l3-navy); }
         .member-item.is-buddy { border: 2.5px solid var(--l3-lime); }
         .m-icon { width: 60px; height: 60px; background: #f0f4f8; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; overflow: hidden; }
@@ -76,10 +72,20 @@
         .detail-pane { display: none; margin-top: 20px; text-align: left; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 15px; grid-template-columns: 1fr 1fr; gap: 15px; }
         .member-item.expanded { grid-column: span 2; padding: 30px 20px; }
         .member-item.expanded .detail-pane { display: grid; }
-        .d-item { display: flex; flex-direction: column; gap: 4px; }
-        .d-label { font-size: 0.5rem; font-weight: 800; opacity: 0.3; letter-spacing: 0.1em; }
-        .d-val { font-size: 0.8rem; font-weight: 600; color: var(--l3-navy); }
-        .d-full { grid-column: span 2; }
+
+        /* 🏛️ INFOタブ：アコーディオン・デザイン */
+        .info-header-area { text-align: center; margin-bottom: 20px; }
+        .info-main-title { font-family: 'Shippori Mincho', serif; font-size: 1.6rem; font-weight: 800; color: var(--l3-navy); margin-bottom: 5px; }
+        .info-sub-title { font-size: 0.6rem; font-weight: 800; opacity: 0.3; letter-spacing: 0.4em; text-transform: uppercase; }
+        
+        .accordion-item { background: #fff; border-radius: 25px; margin-bottom: 12px; overflow: hidden; border: 1px solid rgba(0,43,91,0.03); box-shadow: 0 10px 30px rgba(0,43,91,0.02); }
+        .accordion-trigger { width: 100%; padding: 22px 25px; display: flex; align-items: center; justify-content: space-between; background: none; border: none; cursor: pointer; text-align: left; }
+        .accordion-label { font-family: 'Shippori Mincho', serif; font-size: 1rem; font-weight: 800; color: var(--l3-navy); display: flex; align-items: center; gap: 12px; }
+        .accordion-icon { width: 24px; height: 24px; background: #f0f4f8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: var(--l3-navy); transition: transform 0.3s; }
+        .accordion-item.active .accordion-icon { transform: rotate(180deg); background: var(--l3-navy); color: var(--l3-lime); }
+        .accordion-content { max-height: 0; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: #fcfdfe; }
+        .accordion-inner { padding: 10px 25px 30px; font-size: 0.85rem; line-height: 1.8; color: var(--l3-navy); opacity: 0.8; }
+        .info-highlight { color: var(--l3-navy); font-weight: 800; border-bottom: 2px solid var(--l3-lime); }
 
         .nav { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; background: #01162d; border-radius: 35px; display: flex; justify-content: space-around; padding: 22px 0; box-shadow: 0 25px 60px rgba(0,0,0,0.2); z-index: 2000; }
         .nav-item { color: rgba(255,255,255,0.25); text-align: center; font-size: 8px; font-weight: 800; text-decoration: none; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; }
@@ -117,7 +123,6 @@
         </div>
     </div>
     <button onclick="takeAttendance()" class="btn-attendance">📖 出席登録</button>
-    
     <div class="l3-card">
         <div class="buddy-label">本日のバディ</div>
         <div id="buddy-display" class="buddy-name-display">---</div>
@@ -125,7 +130,6 @@
         <div class="buddy-label" style="margin-top:20px; margin-bottom:10px;">BUDDY COLLECTION</div>
         <div id="stamp-root" class="stamp-grid"></div>
     </div>
-
     <div class="l3-card">
         <div class="buddy-label">運営へのご意見箱</div>
         <textarea id="feedback-comment" class="feedback-area" placeholder="要望やメッセージを入力してください..."></textarea>
@@ -137,6 +141,162 @@
     <div class="lock-overlay"><div class="lock-msg">会員限定コンテンツです</div></div>
     <div style="text-align:center; margin-bottom:10px;"><span style="font-size:0.7rem; font-weight:800; letter-spacing:0.4em; opacity:0.3;">MEMBER LIST</span></div>
     <div id="list-root" class="list-grid"></div>
+</main>
+
+<main class="container" id="tab-info">
+    <div class="info-header-area">
+        <h1 class="info-main-title">L3 Guide</h1>
+        <p class="info-sub-title">Information & Rules</p>
+    </div>
+
+    <div class="accordion-item">
+        <button class="accordion-trigger" onclick="toggleAccordion(this)">
+            <span class="accordion-label">🏛️ L3 Philosophy</span>
+            <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-content">
+            <div class="accordion-inner">
+                高津バドミントンサークル L3の核心は<span class="info-highlight">「3年で燃え尽きる」</span>という刹那的な美学にあります。<br>
+                限られた時間だからこそ、一回一回の練習を最高に熱く、濃密なものにする。卒業があるからこそ、今この瞬間の交流を大切にする。それがL3の哲学です。
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <button class="accordion-trigger" onclick="toggleAccordion(this)">
+            <span class="accordion-label">✉️ 代表挨拶</span>
+            <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-content">
+            <div class="accordion-inner">
+                L3ポータルへようこそ。代表の和田です。<br>
+                バドミントンを通じて、単なるスポーツ以上の「質の高い体験」を共有したい。そんな想いでこのサークルを立ち上げました。共に最高の3年間を作り上げましょう。
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <button class="accordion-trigger" onclick="toggleAccordion(this)">
+            <span class="accordion-label">💎 L3 Value</span>
+            <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-content">
+            <div class="accordion-inner">
+                L3が提供するのは<span class="info-highlight">「Athletic Luxury」</span>な体験です。<br>
+                妥協のない競技レベルの追求と、洗練された大人のコミュニティの両立。このポータルを通じた「バディ制度」や「デジタル会員証」も、その特別な体験の一部です。
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <button class="accordion-trigger" onclick="toggleAccordion(this)">
+            <span class="accordion-label">🏸 活動概要</span>
+            <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-content">
+            <div class="accordion-inner">
+                ■ 活動頻度：毎週土日・祝日を中心とした月数回<br>
+                ■ 内容：基礎打ち、ゲーム練習、部内リーグ戦<br>
+                ■ 使用球：第一種検定合格球（YONEX NEW OFFICIAL等）
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <button class="accordion-trigger" onclick="toggleAccordion(this)">
+            <span class="accordion-label">📍 アクセス</span>
+            <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-content">
+            <div class="accordion-inner">
+                主に川崎市高津区内の公共施設を利用します。<br><br>
+                ■ <span class="info-highlight">高津スポーツセンター</span><br>東急田園都市線「二子新地駅」より徒歩8分<br>
+                ■ <span class="info-highlight">川崎市民プラザ</span><br>市バス「市民プラザ」下車すぐ
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <button class="accordion-trigger" onclick="toggleAccordion(this)">
+            <span class="accordion-label">⚖️ Rules & Manners</span>
+            <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-content">
+            <div class="accordion-inner">
+                ・準備、片付けは全員で率先して行うこと。<br>
+                ・ドタキャンは運営とメンバーへのリスペクトを欠く行為とみなし、厳格に対応します。<br>
+                ・<span class="info-highlight">「必ず3年後に引退」</span>のルールを厳守し、全力を出し切ること。
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <button class="accordion-trigger" onclick="toggleAccordion(this)">
+            <span class="accordion-label">📱 Buddy & Portal</span>
+            <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-content">
+            <div class="accordion-inner">
+                本ポータルでは毎回「本日のバディ」が指定されます。<br>
+                練習中のペアリングや交流を深め、<span class="info-highlight">「交流を記録する」</span>ボタンでスタンプを貯めてください。名簿の「PROFILE EDIT」からアイコン設定も可能です。
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <button class="accordion-trigger" onclick="toggleAccordion(this)">
+            <span class="accordion-label">💰 会費制度</span>
+            <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-content">
+            <div class="accordion-inner">
+                ■ 入会金：¥X,XXX<br>
+                ■ 練習参加費：¥X,XXX / 回（シャトル・コート代込）<br>
+                会費はすべてコート確保、消耗品、ポータル維持、イベント運営に充てられます。
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <button class="accordion-trigger" onclick="toggleAccordion(this)">
+            <span class="accordion-label">🤝 Join Us</span>
+            <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-content">
+            <div class="accordion-inner">
+                L3は完全招待・紹介制を基本としていますが、熱意ある方の体験参加も受け付けています。<br>
+                入会条件：バドミントン経験者であり、L3のフィロソフィーに深く共感できる方。
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <button class="accordion-trigger" onclick="toggleAccordion(this)">
+            <span class="accordion-label">❓ FAQ</span>
+            <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-content">
+            <div class="accordion-inner">
+                Q. 3年経ったら絶対に辞めないといけない？<br>
+                A. はい。それがL3の誇りであり、ルールです。引退後は「卒業生」としてイベントへ招待されます。<br><br>
+                Q. 初心者でも大丈夫？<br>
+                A. 申し訳ありませんが、現在は競技の質を保つため、一定以上の経験者のみを募集しています。
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <button class="accordion-trigger" onclick="toggleAccordion(this)">
+            <span class="accordion-label">🛡️ Safety & Privacy</span>
+            <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-content">
+            <div class="accordion-inner">
+                ■ スポーツ保険への加入を強く推奨します。<br>
+                ■ ポータルに入力された個人情報は、サークル運営以外の目的で使用することはありません。メンバー間の相互尊重をお願いします。
+            </div>
+        </div>
+    </div>
 </main>
 
 <div id="edit-modal">
@@ -157,7 +317,7 @@
 <nav class="nav">
     <div class="nav-item nav-active" id="nav-mypage" onclick="switchTab('mypage')">My Page</div>
     <div class="nav-item" id="nav-list" onclick="switchTab('list')">List</div>
-    <div class="nav-item">Info</div>
+    <div class="nav-item" id="nav-info" onclick="switchTab('info')">Info</div>
 </nav>
 
 <script>
@@ -195,7 +355,6 @@
                     window.currentBuddyId = data.buddyId;
                 }
                 
-                // 🟢 復元：スタンプの描画ロジック
                 const stampRoot = document.getElementById('stamp-root');
                 stampRoot.innerHTML = '';
                 for (let i = 0; i < 12; i++) {
@@ -215,7 +374,6 @@
                         if (b.id === data.buddyId) return 1;
                         return a.name.localeCompare(b.name, 'ja');
                     });
-                    
                     listRoot.innerHTML = sorted.map(m => `
                         <div class="member-item ${m.id === id ? 'is-me' : ''} ${m.id === data.buddyId ? 'is-buddy' : ''}" onclick="toggleMember(this)">
                             <div class="m-icon">${m.photo ? `<img src="${m.photo}" class="m-photo">` : m.name.substring(0,1)}</div>
@@ -237,6 +395,35 @@
         } catch (e) { }
     }
 
+    function switchTab(tab) {
+        gsap.fromTo(".container.active", { opacity: 1, y: 0 }, { opacity: 0, y: 10, duration: 0.3, onComplete: () => {
+            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('nav-active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('nav-' + tab).classList.add('nav-active');
+            gsap.fromTo("#tab-" + tab, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 });
+        }});
+    }
+
+    function toggleAccordion(el) {
+        const item = el.parentElement;
+        const content = item.querySelector('.accordion-content');
+        const isActive = item.classList.contains('active');
+        document.querySelectorAll('.accordion-item').forEach(i => {
+            i.classList.remove('active');
+            i.querySelector('.accordion-content').style.maxHeight = null;
+        });
+        if (!isActive) {
+            item.classList.add('active');
+            content.style.maxHeight = content.scrollHeight + "px";
+        }
+    }
+
+    function toggleMember(el) {
+        const isExpanded = el.classList.contains('expanded');
+        document.querySelectorAll('.member-item').forEach(m => m.classList.remove('expanded'));
+        if (!isExpanded) { el.classList.add('expanded'); gsap.from(el.querySelector('.detail-pane'), { opacity: 0, y: -10, duration: 0.4 }); }
+    }
     function openEditModal() {
         if(!currentUserData) return;
         document.getElementById('edit-photo').value = currentUserData.photo || "";
@@ -250,33 +437,12 @@
         gsap.from(".modal-card", { scale: 0.8, opacity: 0, duration: 0.4, ease: "back.out(1.7)" });
     }
     function closeEditModal() { gsap.to(".modal-card", { scale: 0.8, opacity: 0, duration: 0.3, onComplete: () => { document.getElementById('edit-modal').style.display = 'none'; }}); }
-    
     async function saveProfile() {
         const id = new URLSearchParams(window.location.search).get('id');
         try {
-            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ 
-                action: "update_profile", userId: id, photo: document.getElementById('edit-photo').value,
-                nickname: document.getElementById('edit-nickname').value, birthYear: document.getElementById('edit-birthYear').value, 
-                experience: document.getElementById('edit-experience').value, racket: document.getElementById('edit-racket').value, 
-                hobbies: document.getElementById('edit-hobbies').value, manga: document.getElementById('edit-manga').value 
-            }) });
+            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "update_profile", userId: id, photo: document.getElementById('edit-photo').value, nickname: document.getElementById('edit-nickname').value, birthYear: document.getElementById('edit-birthYear').value, experience: document.getElementById('edit-experience').value, racket: document.getElementById('edit-racket').value, hobbies: document.getElementById('edit-hobbies').value, manga: document.getElementById('edit-manga').value }) });
             if((await res.json()).status === "success") { alert("プロフィールを更新しました！📸"); closeEditModal(); loadPortal(); }
         } catch (e) { }
-    }
-    
-    function switchTab(tab) {
-        gsap.fromTo(".container.active", { opacity: 1, y: 0 }, { opacity: 0, y: 10, duration: 0.3, onComplete: () => {
-            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('nav-active'));
-            document.getElementById('tab-' + tab).classList.add('active');
-            document.getElementById('nav-' + tab).classList.add('nav-active');
-            gsap.fromTo("#tab-" + tab, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 });
-        }});
-    }
-    function toggleMember(el) {
-        const isExpanded = el.classList.contains('expanded');
-        document.querySelectorAll('.member-item').forEach(m => m.classList.remove('expanded'));
-        if (!isExpanded) { el.classList.add('expanded'); gsap.from(el.querySelector('.detail-pane'), { opacity: 0, y: -10, duration: 0.4 }); }
     }
     async function takeAttendance() {
         const id = new URLSearchParams(window.location.search).get('id');
