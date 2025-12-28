@@ -50,26 +50,27 @@
         .slot { aspect-ratio: 1/1; background: #f9fafb; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700; color: #dce3e9; border: 1px solid #f0f3f6; }
         .slot.filled { background: var(--l3-navy); color: var(--l3-lime); border: none; }
         
+        /* 🟢 復元：ご意見箱のテキストボックス */
+        .feedback-area { width: 100%; min-height: 100px; border-radius: 20px; border: 1px solid rgba(0, 43, 91, 0.1); background: #f9fafb; padding: 18px; font-family: inherit; font-size: 0.95rem; color: var(--l3-navy); resize: none; margin-bottom: 15px; outline: none; display: block; }
+        
         .btn-edit-trigger { background: transparent; color: var(--l3-navy); border: 1px solid var(--l3-navy); padding: 12px; border-radius: 15px; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.2em; cursor: pointer; width: 100%; margin-top: 15px; }
+        
+        /* 🖼️ 復元：編集モーダル内ボタンのデザイン */
         #edit-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,43,91,0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 3000; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-card { background: #fff; width: 100%; max-width: 360px; border-radius: 40px; padding: 40px 30px; position: relative; max-height: 90vh; overflow-y: auto; }
+        .modal-card { background: #fff; width: 100%; max-width: 360px; border-radius: 40px; padding: 40px 30px; position: relative; max-height: 90vh; overflow-y: auto; text-align: center; }
         .modal-title { font-family: 'Shippori Mincho', serif; font-size: 1.5rem; font-weight: 800; color: var(--l3-navy); margin-bottom: 30px; }
         .form-group { text-align: left; margin-bottom: 20px; }
         .form-label { font-size: 0.6rem; font-weight: 800; opacity: 0.4; letter-spacing: 0.1em; margin-bottom: 8px; display: block; }
         .form-input { width: 100%; padding: 14px; border-radius: 15px; border: 1px solid rgba(0,43,91,0.1); background: #f9fafb; font-size: 0.9rem; color: var(--l3-navy); outline: none; }
+        .btn-save { width: 100%; padding: 18px; border-radius: 20px; background: var(--l3-navy); color: #fff; font-weight: 800; border: none; margin-top: 20px; cursor: pointer; display: block; }
+        .btn-cancel { width: 100%; background: transparent; color: var(--l3-navy); opacity: 0.4; font-size: 0.7rem; font-weight: 800; border: none; margin-top: 15px; cursor: pointer; display: block; }
 
-        /* ---------------------------------
-           🏸 LIST用：画像対応スタイル
-        ---------------------------------- */
         .list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
         .member-item { background: #fff; border-radius: 28px; padding: 20px 15px; border: 1px solid rgba(0,43,91,0.04); text-align: center; }
         .member-item.is-me { border: 2.5px solid var(--l3-navy); }
         .member-item.is-buddy { border: 2.5px solid var(--l3-lime); }
-        
-        /* 🟢 アイコン/画像表示の強化 */
         .m-icon { width: 60px; height: 60px; background: #f0f4f8; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; overflow: hidden; }
         .m-photo { width: 100%; height: 100%; object-fit: cover; }
-
         .m-name { font-family: 'Shippori Mincho', serif; font-size: 0.95rem; font-weight: 800; color: var(--l3-navy); display: block; }
         .m-tag { font-size: 0.55rem; font-weight: 800; opacity: 0.3; letter-spacing: 0.1em; margin-top: 5px; display: block; }
         .detail-pane { display: none; margin-top: 20px; text-align: left; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 15px; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -116,12 +117,15 @@
         </div>
     </div>
     <button onclick="takeAttendance()" class="btn-attendance">📖 出席登録</button>
+    
     <div class="l3-card">
         <div class="buddy-label">本日のバディ</div>
         <div id="buddy-display" class="buddy-name-display">---</div>
         <button id="btn-stamp" onclick="recordBuddyStamp()" style="display:none; margin-bottom:15px; width:100%; padding:16px; border-radius:16px; border:none; background:var(--l3-lime); color:var(--l3-navy); font-weight:800; cursor:pointer;">交流を記録する</button>
+        <div class="buddy-label" style="margin-top:20px; margin-bottom:10px;">BUDDY COLLECTION</div>
         <div id="stamp-root" class="stamp-grid"></div>
     </div>
+
     <div class="l3-card">
         <div class="buddy-label">運営へのご意見箱</div>
         <textarea id="feedback-comment" class="feedback-area" placeholder="要望やメッセージを入力してください..."></textarea>
@@ -138,7 +142,7 @@
 <div id="edit-modal">
     <div class="modal-card">
         <div class="modal-title">Edit Profile</div>
-        <div class="form-group"><label class="form-label">アイコン画像URL (PostIMG等)</label><input type="text" id="edit-photo" class="form-input" placeholder="https://..."></div>
+        <div class="form-group"><label class="form-label">アイコン画像URL</label><input type="text" id="edit-photo" class="form-input" placeholder="https://..."></div>
         <div class="form-group"><label class="form-label">ニックネーム</label><input type="text" id="edit-nickname" class="form-input"></div>
         <div class="form-group"><label class="form-label">生まれ年</label><input type="number" id="edit-birthYear" class="form-input"></div>
         <div class="form-group"><label class="form-label">バド歴</label><input type="text" id="edit-experience" class="form-input"></div>
@@ -191,6 +195,17 @@
                     window.currentBuddyId = data.buddyId;
                 }
                 
+                // 🟢 復元：スタンプの描画ロジック
+                const stampRoot = document.getElementById('stamp-root');
+                stampRoot.innerHTML = '';
+                for (let i = 0; i < 12; i++) {
+                    const stamp = (data.stampHistory || [])[i];
+                    const slot = document.createElement('div');
+                    slot.className = 'slot' + (stamp ? ' filled' : '');
+                    slot.innerText = stamp ? stamp.name.substring(0,1) : '';
+                    stampRoot.appendChild(slot);
+                }
+
                 if (data.allMembers) {
                     const listRoot = document.getElementById('list-root');
                     const sorted = [...data.allMembers].sort((a, b) => {
@@ -201,12 +216,9 @@
                         return a.name.localeCompare(b.name, 'ja');
                     });
                     
-                    // 🟢 LIST描画 (画像表示対応)
                     listRoot.innerHTML = sorted.map(m => `
                         <div class="member-item ${m.id === id ? 'is-me' : ''} ${m.id === data.buddyId ? 'is-buddy' : ''}" onclick="toggleMember(this)">
-                            <div class="m-icon">
-                                ${m.photo ? `<img src="${m.photo}" class="m-photo">` : m.name.substring(0,1)}
-                            </div>
+                            <div class="m-icon">${m.photo ? `<img src="${m.photo}" class="m-photo">` : m.name.substring(0,1)}</div>
                             <span class="m-name">${m.name}</span>
                             <span class="m-tag">${m.id === id ? 'YOU / ' + m.term + '期' : (m.id === data.buddyId ? 'BUDDY / ' + m.term + '期' : m.term + '期')}</span>
                             <div class="detail-pane">
@@ -243,15 +255,10 @@
         const id = new URLSearchParams(window.location.search).get('id');
         try {
             const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ 
-                action: "update_profile", 
-                userId: id, 
-                photo: document.getElementById('edit-photo').value,
-                nickname: document.getElementById('edit-nickname').value, 
-                birthYear: document.getElementById('edit-birthYear').value, 
-                experience: document.getElementById('edit-experience').value, 
-                racket: document.getElementById('edit-racket').value, 
-                hobbies: document.getElementById('edit-hobbies').value, 
-                manga: document.getElementById('edit-manga').value 
+                action: "update_profile", userId: id, photo: document.getElementById('edit-photo').value,
+                nickname: document.getElementById('edit-nickname').value, birthYear: document.getElementById('edit-birthYear').value, 
+                experience: document.getElementById('edit-experience').value, racket: document.getElementById('edit-racket').value, 
+                hobbies: document.getElementById('edit-hobbies').value, manga: document.getElementById('edit-manga').value 
             }) });
             if((await res.json()).status === "success") { alert("プロフィールを更新しました！📸"); closeEditModal(); loadPortal(); }
         } catch (e) { }
@@ -271,7 +278,29 @@
         document.querySelectorAll('.member-item').forEach(m => m.classList.remove('expanded'));
         if (!isExpanded) { el.classList.add('expanded'); gsap.from(el.querySelector('.detail-pane'), { opacity: 0, y: -10, duration: 0.4 }); }
     }
-    // (takeAttendance, recordBuddyStamp, sendFeedback は維持)
+    async function takeAttendance() {
+        const id = new URLSearchParams(window.location.search).get('id');
+        try {
+            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "attendance", userId: id }) });
+            if((await res.json()).status === "success") { alert("出席を登録しました！📖"); loadPortal(); }
+        } catch (e) { }
+    }
+    async function recordBuddyStamp() {
+        const id = new URLSearchParams(window.location.search).get('id');
+        try {
+            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "buddy_stamp", userId: id, buddyId: window.currentBuddyId }) });
+            if((await res.json()).status === "success") { alert("交流を記録しました！🔥"); loadPortal(); }
+        } catch (e) { }
+    }
+    async function sendFeedback() {
+        const comment = document.getElementById('feedback-comment').value;
+        if(!comment || !confirm("送信しますか？")) return;
+        const id = new URLSearchParams(window.location.search).get('id');
+        try {
+            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "feedback", userId: id, comment: comment }) });
+            if((await res.json()).status === "success") { alert("送信完了しました！"); document.getElementById('feedback-comment').value = ''; }
+        } catch (e) { }
+    }
     loadPortal();
 </script>
 </body>
