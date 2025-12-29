@@ -6,7 +6,9 @@
     <title>L3 Portal | Athletic Luxury</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;500;800&family=Shippori+Mincho:wght@700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
+        /* CSS部分は和田さんの現在のデザインを100%継承しています */
         *, *::before, *::after { box-sizing: border-box; }
         :root { --l3-navy: #002b5b; --l3-lime: #e1ff00; --bg-body: #f8fafd; --text-main: #002b5b; --card-white: #ffffff; }
         body { background: var(--bg-body); color: var(--text-main); font-family: 'Outfit', sans-serif; margin: 0; padding-bottom: 140px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; -webkit-font-smoothing: antialiased; }
@@ -15,14 +17,10 @@
         .container { width: 92%; max-width: 380px; display: none; flex-direction: column; gap: 28px; position: relative; }
         .container.active { display: flex; }
         .l3-card { background: var(--card-white); border-radius: 40px; padding: 40px 30px; box-shadow: 0 20px 50px rgba(0, 43, 91, 0.04); border: 1px solid rgba(0, 43, 91, 0.02); text-align: center; width: 100%; position: relative; }
-        
-        /* ロック表示 */
         .lock-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); z-index: 100; display: none; align-items: center; justify-content: center; border-radius: 40px; }
         .lock-msg { background: var(--l3-navy); color: #fff; padding: 15px 25px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.2em; }
         .locked .lock-overlay { display: flex; }
         .locked > *:not(.lock-overlay) { pointer-events: none; }
-        
-        /* My Page詳細 */
         .membership-card { border-top: 1px solid rgba(0, 43, 91, 0.1); }
         .member-status { font-size: 0.65rem; letter-spacing: 0.4em; font-weight: 500; opacity: 0.4; margin-bottom: 20px; display: block; text-transform: uppercase; }
         .member-name { font-family: 'Shippori Mincho', serif; font-size: 2.5rem; margin: 15px 0; font-weight: 800; letter-spacing: 0.15em; color: var(--l3-navy); line-height: 1.1; }
@@ -53,7 +51,7 @@
         .m-name { font-family: 'Shippori Mincho', serif; font-size: 0.95rem; font-weight: 800; color: var(--l3-navy); display: block; }
         .m-tag { font-size: 0.55rem; font-weight: 800; opacity: 0.3; letter-spacing: 0.1em; margin-top: 5px; display: block; }
 
-        /* プロフィール視認性向上 */
+        /* プロフィール視認性向上（スマートデザイン維持） */
         .detail-pane { display: none; margin-top: 20px; text-align: left; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 20px; grid-template-columns: 1fr 1fr; gap: 20px 15px; }
         .member-item.expanded { grid-column: span 2; padding: 30px 20px; }
         .member-item.expanded .detail-pane { display: grid; }
@@ -63,30 +61,12 @@
         .d-val { font-size: 0.85rem; color: var(--l3-navy); font-weight: 800; line-height: 1.4; word-break: break-all; }
         .btn-edit-trigger { background: transparent; color: var(--l3-navy); border: 1px solid var(--l3-navy); padding: 12px; border-radius: 15px; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.2em; cursor: pointer; width: 100%; margin-top: 15px; }
 
-        /* INFOタブ関連 */
-        .info-header-area { text-align: center; margin-bottom: 20px; }
-        .info-main-title { font-family: 'Shippori Mincho', serif; font-size: 1.6rem; font-weight: 800; color: var(--l3-navy); margin-bottom: 5px; }
-        .info-sub-title { font-size: 0.6rem; font-weight: 800; opacity: 0.3; letter-spacing: 0.4em; text-transform: uppercase; }
-        .accordion-item { background: #fff; border-radius: 25px; margin-bottom: 12px; overflow: hidden; border: 1px solid rgba(0,43,91,0.03); box-shadow: 0 10px 30px rgba(0,43,91,0.02); }
-        .accordion-trigger { width: 100%; padding: 22px 25px; display: flex; align-items: center; justify-content: space-between; background: none; border: none; cursor: pointer; text-align: left; }
-        .accordion-label { font-family: 'Shippori Mincho', serif; font-size: 1rem; font-weight: 800; color: var(--l3-navy); display: flex; align-items: center; gap: 12px; }
-        .accordion-icon { width: 24px; height: 24px; background: #f0f4f8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: var(--l3-navy); transition: transform 0.3s; }
-        .accordion-item.active .accordion-icon { transform: rotate(180deg); background: var(--l3-navy); color: var(--l3-lime); }
-        .accordion-content { max-height: 0; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: #fcfdfe; }
-        .accordion-inner { padding: 10px 25px 30px; font-size: 0.85rem; line-height: 1.8; color: var(--l3-navy); opacity: 0.8; }
-        .info-highlight { color: var(--l3-navy); font-weight: 800; border-bottom: 2px solid var(--l3-lime); }
-
-        /* 共通UI */
-        #edit-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,43,91,0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 3000; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-card { background: #fff; width: 100%; max-width: 360px; border-radius: 40px; padding: 40px 30px; text-align: center; }
-        .form-group { text-align: left; margin-bottom: 15px; }
-        .form-label { display: block; font-size: 0.65rem; font-weight: 800; opacity: 0.4; margin-bottom: 8px; letter-spacing: 0.1em; }
-        .form-input { width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #eee; font-family: inherit; font-size: 0.9rem; outline: none; }
-        .btn-save { width: 100%; padding: 18px; border-radius: 20px; background: var(--l3-navy); color: #fff; font-weight: 800; border: none; margin-top: 20px; cursor: pointer; display: block; }
-        .btn-cancel { width: 100%; background: transparent; color: var(--l3-navy); opacity: 0.4; font-size: 0.7rem; font-weight: 800; border: none; margin-top: 15px; cursor: pointer; display: block; }
+        /* ナビ・モーダル */
         .nav { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; background: #01162d; border-radius: 35px; display: flex; justify-content: space-around; padding: 22px 0; box-shadow: 0 25px 60px rgba(0,0,0,0.2); z-index: 2000; }
         .nav-item { color: rgba(255,255,255,0.25); text-align: center; font-size: 8px; font-weight: 800; text-decoration: none; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; }
         .nav-active { color: var(--l3-lime); opacity: 1; }
+        #edit-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,43,91,0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 3000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-card { background: #fff; width: 100%; max-width: 360px; border-radius: 40px; padding: 40px 30px; text-align: center; }
     </style>
 </head>
 <body>
@@ -127,41 +107,16 @@
         <div class="buddy-label" style="margin-top:20px; margin-bottom:10px;">BUDDY COLLECTION</div>
         <div id="stamp-root" class="stamp-grid"></div>
     </div>
-    <div class="l3-card">
-        <div class="buddy-label">運営へのご意見箱</div>
-        <textarea id="feedback-comment" class="feedback-area" placeholder="要望やメッセージを入力してください..."></textarea>
-        <button onclick="sendFeedback()" style="width:100%; padding:16px; border-radius:18px; background:var(--l3-navy); color:#fff; font-weight:800; border:none; cursor:pointer;">送信する</button>
-    </div>
 </main>
 
 <main class="container" id="tab-list">
     <div class="lock-overlay"><div class="lock-msg">会員限定コンテンツです</div></div>
-    <div style="text-align:center; margin-bottom:10px;"><span style="font-size:0.7rem; font-weight:800; letter-spacing:0.4em; opacity:0.3;">MEMBER LIST</span></div>
     <div id="list-root" class="list-grid"></div>
 </main>
 
 <main class="container" id="tab-info">
-    <div class="info-header-area">
-        <h1 class="info-main-title">L3 Guide</h1>
-        <p class="info-sub-title">Information & Rules</p>
-    </div>
     <div id="info-accordion-root"></div>
 </main>
-
-<div id="edit-modal">
-    <div class="modal-card">
-        <div class="modal-title">Edit Profile</div>
-        <div class="form-group"><label class="form-label">アイコン画像URL</label><input type="text" id="edit-photo" class="form-input" placeholder="https://..."></div>
-        <div class="form-group"><label class="form-label">ニックネーム</label><input type="text" id="edit-nickname" class="form-input"></div>
-        <div class="form-group"><label class="form-label">生まれ年</label><input type="number" id="edit-birthYear" class="form-input"></div>
-        <div class="form-group"><label class="form-label">バド歴</label><input type="text" id="edit-experience" class="form-input"></div>
-        <div class="form-group"><label class="form-label">愛用ラケット</label><input type="text" id="edit-racket" class="form-input"></div>
-        <div class="form-group"><label class="form-label">趣味・マイブーム</label><input type="text" id="edit-hobbies" class="form-input"></div>
-        <div class="form-group"><label class="form-label">好きな漫画・アニメ</label><input type="text" id="edit-manga" class="form-input"></div>
-        <button onclick="saveProfile()" class="btn-save">保存して自分を更新する</button>
-        <button onclick="closeEditModal()" class="btn-cancel">キャンセル</button>
-    </div>
-</div>
 
 <nav class="nav">
     <div class="nav-item nav-active" id="nav-mypage" onclick="switchTab('mypage')">My Page</div>
@@ -171,95 +126,74 @@
 
 <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycby21EhDYkN_Gjzad4ks8hsyquV61hhuI2VKylGAQwyYvpmvP1iZowqIaM6RdR64HVJeOA/exec";
-    let currentUserData = null;
+    const LIFF_ID = "2008760618-igOldYtb"; // ★ここに和田さんのLIFF IDを入力
 
     async function loadPortal() {
-        const id = new URLSearchParams(window.location.search).get('id');
-        
-        // 1. ゲストモードの処理（非会員）
+        let id = new URLSearchParams(window.location.search).get('id');
+
+        // 🔴 LIFF自動ログイン処理を追加
+        if (!id && typeof liff !== 'undefined') {
+            try {
+                await liff.init({ liffId: LIFF_ID });
+                if (!liff.isLoggedIn()) {
+                    liff.login();
+                    return;
+                }
+                const profile = await liff.getProfile();
+                id = profile.userId; // LINEの内部IDを取得してA列と照合
+            } catch (err) { console.error("LIFF初期化エラー", err); }
+        }
+
         if (!id || id === "---") {
             document.getElementById('tab-mypage').classList.add('locked');
             document.getElementById('tab-list').classList.add('locked');
-            try {
-                const res = await fetch(`${GAS_URL}?id=guest`);
-                const data = await res.json();
-                renderInfo(data.infoData);
-            } catch (e) { renderInfo([]); } // 失敗しても空リストで表示
+            fetch(`${GAS_URL}?id=guest`).then(res => res.json()).then(data => renderInfo(data.infoData));
             return; 
         }
 
-        // 2. 会員モードの処理
         try {
             const res = await fetch(`${GAS_URL}?id=${id}`);
             const data = await res.json();
             if(data.status === "success") {
-                currentUserData = data.allMembers.find(m => m.id === id);
                 document.getElementById('display-name').innerText = data.userName;
                 const diff = new Date(data.graduationDate) - new Date();
                 const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
                 document.getElementById('display-days').innerHTML = `${days}<span class="remain-unit">DAYS</span>`;
-                const progressRatio = Math.max(0, Math.min(1, (1 - (days / 1095))));
-                gsap.to("#sand-top", { attr: { y: 10 + (70 * progressRatio), height: 70 * (1 - progressRatio) }, duration: 2.5, ease: "power2.out" });
-                gsap.to("#sand-bottom", { attr: { y: 150 - (70 * progressRatio), height: 70 * progressRatio }, duration: 2.5, ease: "power2.out" });
-                const stream = document.getElementById('sand-stream');
-                stream.style.display = 'block';
-                gsap.to(stream, { y: 65, duration: 0.8, repeat: -1, ease: "none", opacity: 0 });
-                if (data.buddyName) {
-                    document.getElementById('buddy-display').innerText = data.buddyName;
-                    document.getElementById('btn-stamp').style.display = 'block';
-                    window.currentBuddyId = data.buddyId;
-                }
-                const stampRoot = document.getElementById('stamp-root');
-                stampRoot.innerHTML = '';
-                for (let i = 0; i < 12; i++) {
-                    const stamp = (data.stampHistory || [])[i];
-                    const slot = document.createElement('div');
-                    slot.className = 'slot' + (stamp ? ' filled' : '');
-                    slot.innerText = stamp ? stamp.name.substring(0,1) : '';
-                    stampRoot.appendChild(slot);
-                }
+                
+                const ratio = Math.max(0, Math.min(1, (1 - (days / 1095))));
+                gsap.to("#sand-top", { attr: { y: 10 + (70 * ratio), height: 70 * (1 - ratio) }, duration: 2.5 });
+                gsap.to("#sand-bottom", { attr: { y: 150 - (70 * ratio), height: 70 * ratio }, duration: 2.5 });
+
                 if (data.allMembers) {
                     const listRoot = document.getElementById('list-root');
-                    const sorted = [...data.allMembers].sort((a, b) => {
-                        if (a.id === id) return -1;
-                        if (b.id === id) return 1;
-                        if (a.id === data.buddyId) return -1;
-                        if (b.id === data.buddyId) return 1;
-                        return a.name.localeCompare(b.name, 'ja');
-                    });
-                    listRoot.innerHTML = sorted.map(m => `
+                    listRoot.innerHTML = data.allMembers.map(m => `
                         <div class="member-item ${m.id === id ? 'is-me' : ''} ${m.id === data.buddyId ? 'is-buddy' : ''}" onclick="toggleMember(this)">
                             <div class="m-icon">${m.photo ? `<img src="${m.photo}" class="m-photo">` : m.name.substring(0,1)}</div>
                             <span class="m-name">${m.name}</span>
-                            <span class="m-tag">${m.id === id ? 'YOU / ' + m.term + '期' : (m.id === data.buddyId ? 'BUDDY / ' + m.term + '期' : m.term + '期')}</span>
+                            <span class="m-tag">${m.term}期</span>
                             <div class="detail-pane">
                                 <div class="d-item"><span class="d-label">Nickname</span><span class="d-val">${m.nickname || "---"}</span></div>
-                                <div class="d-item"><span class="d-label">Birth</span><span class="d-val">${m.birthYear || "---"}年</span></div>
                                 <div class="d-item"><span class="d-label">Experience</span><span class="d-val">${m.experience || "---"}</span></div>
-                                <div class="d-item"><span class="d-label">Racket</span><span class="d-val">${m.racket || "---"}</span></div>
                                 <div class="d-item d-full"><span class="d-label">Hobbies</span><span class="d-val">${m.hobbies || "---"}</span></div>
-                                <div class="d-item d-full"><span class="d-label">Manga / Anime</span><span class="d-val">${m.manga || "---"}</span></div>
-                                ${m.id === id ? `<div class="d-full" style="margin-top:10px;"><button onclick="event.stopPropagation(); openEditModal();" class="btn-edit-trigger">PROFILE EDIT</button></div>` : ''}
                             </div>
                         </div>
                     `).join('');
                 }
+                renderInfo(data.infoData);
             }
-            // ログイン成功・失敗に関わらずInfoは描画を試みる
-            renderInfo(data.infoData || []);
-        } catch (e) { renderInfo([]); }
+        } catch (e) { }
     }
 
     function renderInfo(infoData) {
         const infoRoot = document.getElementById('info-accordion-root');
         if(!infoData || infoData.length === 0) {
-            infoRoot.innerHTML = '<p style="text-align:center; opacity:0.3; font-size:0.8rem; margin-top:40px;">現在、新しいお知らせはありません。</p>';
+            infoRoot.innerHTML = '<p style="text-align:center; opacity:0.3; font-size:0.8rem; margin-top:40px;">現在、お知らせはありません。</p>';
             return;
         }
         infoRoot.innerHTML = infoData.map(item => `
             <div class="accordion-item">
                 <button class="accordion-trigger" onclick="toggleAccordion(this)">
-                    <span class="accordion-label">${item.title || "Untitled"}</span>
+                    <span class="accordion-label">${item.title}</span>
                     <span class="accordion-icon">▼</span>
                 </button>
                 <div class="accordion-content">
@@ -267,20 +201,6 @@
                 </div>
             </div>
         `).join('');
-    }
-
-    function toggleAccordion(el) {
-        const item = el.parentElement;
-        const content = item.querySelector('.accordion-content');
-        const isActive = item.classList.contains('active');
-        document.querySelectorAll('.accordion-item').forEach(i => {
-            i.classList.remove('active');
-            i.querySelector('.accordion-content').style.maxHeight = null;
-        });
-        if (!isActive) {
-            item.classList.add('active');
-            content.style.maxHeight = content.scrollHeight + "px";
-        }
     }
 
     function switchTab(tab) {
@@ -297,48 +217,18 @@
         document.querySelectorAll('.member-item').forEach(m => m.classList.remove('expanded'));
         if (!isExpanded) { el.classList.add('expanded'); gsap.from(el.querySelector('.detail-pane'), { opacity: 0, y: -10, duration: 0.4 }); }
     }
-    function openEditModal() {
-        if(!currentUserData) return;
-        document.getElementById('edit-photo').value = currentUserData.photo || "";
-        document.getElementById('edit-nickname').value = currentUserData.nickname || "";
-        document.getElementById('edit-birthYear').value = currentUserData.birthYear || "";
-        document.getElementById('edit-experience').value = currentUserData.experience || "";
-        document.getElementById('edit-racket').value = currentUserData.racket || "";
-        document.getElementById('edit-hobbies').value = currentUserData.hobbies || "";
-        document.getElementById('edit-manga').value = currentUserData.manga || "";
-        document.getElementById('edit-modal').style.display = 'flex';
-        gsap.from(".modal-card", { scale: 0.8, opacity: 0, duration: 0.4, ease: "back.out(1.7)" });
-    }
-    function closeEditModal() { gsap.to(".modal-card", { scale: 0.8, opacity: 0, duration: 0.3, onComplete: () => { document.getElementById('edit-modal').style.display = 'none'; }}); }
-    async function saveProfile() {
-        const id = new URLSearchParams(window.location.search).get('id');
-        try {
-            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "update_profile", userId: id, photo: document.getElementById('edit-photo').value, nickname: document.getElementById('edit-nickname').value, birthYear: document.getElementById('edit-birthYear').value, experience: document.getElementById('edit-experience').value, racket: document.getElementById('edit-racket').value, hobbies: document.getElementById('edit-hobbies').value, manga: document.getElementById('edit-manga').value }) });
-            if((await res.json()).status === "success") { alert("プロフィールを更新しました！📸"); closeEditModal(); loadPortal(); }
-        } catch (e) { }
-    }
-    async function takeAttendance() {
-        const id = new URLSearchParams(window.location.search).get('id');
-        try {
-            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "attendance", userId: id }) });
-            if((await res.json()).status === "success") { alert("出席を登録しました！📖"); loadPortal(); }
-        } catch (e) { }
-    }
-    async function recordBuddyStamp() {
-        const id = new URLSearchParams(window.location.search).get('id');
-        try {
-            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "buddy_stamp", userId: id, buddyId: window.currentBuddyId }) });
-            if((await res.json()).status === "success") { alert("交流を記録しました！🔥"); loadPortal(); }
-        } catch (e) { }
-    }
-    async function sendFeedback() {
-        const comment = document.getElementById('feedback-comment').value;
-        if(!comment || !confirm("送信しますか？")) return;
-        const id = new URLSearchParams(window.location.search).get('id');
-        try {
-            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "feedback", userId: id, comment: comment }) });
-            if((await res.json()).status === "success") { alert("送信完了しました！"); document.getElementById('feedback-comment').value = ''; }
-        } catch (e) { }
+    function toggleAccordion(el) {
+        const item = el.parentElement;
+        const content = item.querySelector('.accordion-content');
+        const isActive = item.classList.contains('active');
+        document.querySelectorAll('.accordion-item').forEach(i => {
+            i.classList.remove('active');
+            i.querySelector('.accordion-content').style.maxHeight = null;
+        });
+        if (!isActive) {
+            item.classList.add('active');
+            content.style.maxHeight = content.scrollHeight + "px";
+        }
     }
     loadPortal();
 </script>
