@@ -38,6 +38,7 @@
         .stamp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 25px; }
         .slot { aspect-ratio: 1/1; background: #f9fafb; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700; color: #dce3e9; border: 1px solid #f0f3f6; }
         .slot.filled { background: var(--l3-navy); color: var(--l3-lime); border: none; }
+        .feedback-area { width: 100%; min-height: 100px; border-radius: 20px; border: 1px solid rgba(0, 43, 91, 0.1); background: #f9fafb; padding: 18px; font-family: inherit; font-size: 0.95rem; color: var(--l3-navy); resize: none; margin-bottom: 15px; outline: none; display: block; }
         .list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
         .member-item { background: #fff; border-radius: 28px; padding: 20px 15px; border: 1px solid rgba(0,43,91,0.04); text-align: center; overflow: hidden; }
         .member-item.is-me { border: 2.5px solid var(--l3-navy); }
@@ -60,6 +61,8 @@
         .accordion-item.active .accordion-icon { transform: rotate(180deg); background: var(--l3-navy); color: var(--l3-lime); }
         .accordion-content { max-height: 0; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: #fcfdfe; }
         .accordion-inner { padding: 10px 25px 30px; font-size: 0.85rem; line-height: 1.8; color: var(--l3-navy); opacity: 0.8; }
+        /* 🟢 ハイライト装飾を復活 */
+        .info-highlight { color: var(--l3-navy); font-weight: 800; border-bottom: 2px solid var(--l3-lime); }
         .nav { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; background: #01162d; border-radius: 35px; display: flex; justify-content: space-around; padding: 22px 0; box-shadow: 0 25px 60px rgba(0,0,0,0.2); z-index: 2000; }
         .nav-item { color: rgba(255,255,255,0.25); text-align: center; font-size: 8px; font-weight: 800; text-decoration: none; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; }
         .nav-active { color: var(--l3-lime); opacity: 1; }
@@ -98,6 +101,11 @@
         <div class="buddy-label" style="margin-top:20px; margin-bottom:10px;">BUDDY COLLECTION</div>
         <div id="stamp-root" class="stamp-grid"></div>
     </div>
+    <div class="l3-card">
+        <div class="buddy-label">運営へのご意見箱</div>
+        <textarea id="feedback-comment" class="feedback-area" placeholder="要望やメッセージを入力してください..."></textarea>
+        <button onclick="sendFeedback()" style="width:100%; padding:16px; border-radius:18px; background:var(--l3-navy); color:#fff; font-weight:800; border:none; cursor:pointer;">送信する</button>
+    </div>
 </main>
 <main class="container" id="tab-list">
     <div class="lock-overlay"><div class="lock-msg">会員限定コンテンツです</div></div>
@@ -123,20 +131,15 @@
                 await liff.init({ liffId: LIFF_ID });
                 if (!liff.isLoggedIn()) { liff.login(); return; }
                 const profile = await liff.getProfile(); id = profile.userId;
-                // loadPortal関数内の id = profile.userId; のすぐ下に追加
-alert("現在のログインIDは: " + id);
             } catch (err) { console.error("LIFFエラー", err); }
         }
-
         if (targetSection === 'joinus') { switchTab('info'); }
-
         if (!id || id === "---") {
             document.getElementById('tab-mypage').classList.add('locked');
             document.getElementById('tab-list').classList.add('locked');
             fetch(`${GAS_URL}?id=guest`).then(res => res.json()).then(data => renderInfo(data.infoData, targetSection));
             return; 
         }
-
         try {
             const res = await fetch(`${GAS_URL}?id=${id}`);
             const data = await res.json();
@@ -175,7 +178,6 @@ alert("現在のログインIDは: " + id);
             }
         } catch (e) { }
     }
-
     function renderInfo(infoData, targetSection) {
         const infoRoot = document.getElementById('info-accordion-root');
         if(!infoData || infoData.length === 0) { infoRoot.innerHTML = '<p style="text-align:center; opacity:0.3; margin-top:40px;">お知らせはありません。</p>'; return; }
@@ -191,7 +193,6 @@ alert("現在のログインIDは: " + id);
             }, 500);
         }
     }
-
     function switchTab(tab) {
         gsap.fromTo(".container.active", { opacity: 1, y: 0 }, { opacity: 0, y: 10, duration: 0.3, onComplete: () => {
             document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
@@ -209,6 +210,16 @@ alert("現在のログインIDは: " + id);
     }
     async function takeAttendance() { const id = new URLSearchParams(window.location.search).get('id'); try { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "attendance", userId: id }) }); if((await res.json()).status === "success") { alert("出席を登録しました！📖"); loadPortal(); } } catch (e) { } }
     async function recordBuddyStamp() { const id = new URLSearchParams(window.location.search).get('id'); try { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "buddy_stamp", userId: id, buddyId: window.currentBuddyId }) }); if((await res.json()).status === "success") { alert("交流を記録しました！🔥"); loadPortal(); } } catch (e) { } }
+    // 🟢 ご意見箱の送信機能を復活
+    async function sendFeedback() {
+        const comment = document.getElementById('feedback-comment').value;
+        if(!comment || !confirm("送信しますか？")) return;
+        const id = new URLSearchParams(window.location.search).get('id');
+        try {
+            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "feedback", userId: id, comment: comment }) });
+            if((await res.json()).status === "success") { alert("送信完了しました！"); document.getElementById('feedback-comment').value = ''; }
+        } catch (e) { }
+    }
     loadPortal();
 </script>
 </body>
