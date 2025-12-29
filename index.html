@@ -123,6 +123,8 @@
                 await liff.init({ liffId: LIFF_ID });
                 if (!liff.isLoggedIn()) { liff.login(); return; }
                 const profile = await liff.getProfile(); id = profile.userId;
+                // loadPortal関数内の id = profile.userId; のすぐ下に追加
+alert("現在のログインIDは: " + id);
             } catch (err) { console.error("LIFFエラー", err); }
         }
 
