@@ -16,10 +16,14 @@
         .container { width: 92%; max-width: 380px; display: none; flex-direction: column; gap: 28px; position: relative; }
         .container.active { display: flex; }
         .l3-card { background: var(--card-white); border-radius: 40px; padding: 40px 30px; box-shadow: 0 20px 50px rgba(0, 43, 91, 0.04); border: 1px solid rgba(0, 43, 91, 0.02); text-align: center; width: 100%; position: relative; }
+        
+        /* ロック表示 */
         .lock-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); z-index: 100; display: none; align-items: center; justify-content: center; border-radius: 40px; }
         .lock-msg { background: var(--l3-navy); color: #fff; padding: 15px 25px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.2em; }
         .locked .lock-overlay { display: flex; }
         .locked > *:not(.lock-overlay) { pointer-events: none; }
+        
+        /* My Pageスタイル（変更なし） */
         .membership-card { border-top: 1px solid rgba(0, 43, 91, 0.1); }
         .member-status { font-size: 0.65rem; letter-spacing: 0.4em; font-weight: 500; opacity: 0.4; margin-bottom: 20px; display: block; text-transform: uppercase; }
         .member-name { font-family: 'Shippori Mincho', serif; font-size: 2.5rem; margin: 15px 0; font-weight: 800; letter-spacing: 0.15em; color: var(--l3-navy); line-height: 1.1; }
@@ -39,14 +43,6 @@
         .slot { aspect-ratio: 1/1; background: #f9fafb; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700; color: #dce3e9; border: 1px solid #f0f3f6; }
         .slot.filled { background: var(--l3-navy); color: var(--l3-lime); border: none; }
         .feedback-area { width: 100%; min-height: 100px; border-radius: 20px; border: 1px solid rgba(0, 43, 91, 0.1); background: #f9fafb; padding: 18px; font-family: inherit; font-size: 0.95rem; color: var(--l3-navy); resize: none; margin-bottom: 15px; outline: none; display: block; }
-        .btn-edit-trigger { background: transparent; color: var(--l3-navy); border: 1px solid var(--l3-navy); padding: 12px; border-radius: 15px; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.2em; cursor: pointer; width: 100%; margin-top: 15px; }
-        #edit-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,43,91,0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 3000; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-card { background: #fff; width: 100%; max-width: 360px; border-radius: 40px; padding: 40px 30px; text-align: center; }
-        .form-group { text-align: left; margin-bottom: 15px; }
-        .form-label { display: block; font-size: 0.65rem; font-weight: 800; opacity: 0.4; margin-bottom: 8px; letter-spacing: 0.1em; }
-        .form-input { width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #eee; font-family: inherit; font-size: 0.9rem; outline: none; }
-        .btn-save { width: 100%; padding: 18px; border-radius: 20px; background: var(--l3-navy); color: #fff; font-weight: 800; border: none; margin-top: 20px; cursor: pointer; display: block; }
-        .btn-cancel { width: 100%; background: transparent; color: var(--l3-navy); opacity: 0.4; font-size: 0.7rem; font-weight: 800; border: none; margin-top: 15px; cursor: pointer; display: block; }
 
         /* LISTタブ関連のスタイル */
         .list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
@@ -58,7 +54,7 @@
         .m-name { font-family: 'Shippori Mincho', serif; font-size: 0.95rem; font-weight: 800; color: var(--l3-navy); display: block; }
         .m-tag { font-size: 0.55rem; font-weight: 800; opacity: 0.3; letter-spacing: 0.1em; margin-top: 5px; display: block; }
 
-        /* ★ここをスマートに修正★ */
+        /* ★ここをスマートに修正（プロフィール視認性アップ）★ */
         .detail-pane { display: none; margin-top: 20px; text-align: left; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 20px; grid-template-columns: 1fr 1fr; gap: 20px 15px; }
         .member-item.expanded { grid-column: span 2; padding: 30px 20px; }
         .member-item.expanded .detail-pane { display: grid; }
@@ -66,8 +62,9 @@
         .d-full { grid-column: span 2; }
         .d-label { font-size: 0.55rem; color: #94a3b8; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
         .d-val { font-size: 0.85rem; color: var(--l3-navy); font-weight: 800; line-height: 1.4; word-break: break-all; }
+        .btn-edit-trigger { background: transparent; color: var(--l3-navy); border: 1px solid var(--l3-navy); padding: 12px; border-radius: 15px; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.2em; cursor: pointer; width: 100%; margin-top: 15px; }
 
-        /* INFOタブ関連のスタイル */
+        /* INFOタブ関連のスタイル（変更なし） */
         .info-header-area { text-align: center; margin-bottom: 20px; }
         .info-main-title { font-family: 'Shippori Mincho', serif; font-size: 1.6rem; font-weight: 800; color: var(--l3-navy); margin-bottom: 5px; }
         .info-sub-title { font-size: 0.6rem; font-weight: 800; opacity: 0.3; letter-spacing: 0.4em; text-transform: uppercase; }
@@ -79,6 +76,15 @@
         .accordion-content { max-height: 0; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: #fcfdfe; }
         .accordion-inner { padding: 10px 25px 30px; font-size: 0.85rem; line-height: 1.8; color: var(--l3-navy); opacity: 0.8; }
         .info-highlight { color: var(--l3-navy); font-weight: 800; border-bottom: 2px solid var(--l3-lime); }
+
+        /* モーダル・ナビ */
+        #edit-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,43,91,0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 3000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-card { background: #fff; width: 100%; max-width: 360px; border-radius: 40px; padding: 40px 30px; text-align: center; }
+        .form-group { text-align: left; margin-bottom: 15px; }
+        .form-label { display: block; font-size: 0.65rem; font-weight: 800; opacity: 0.4; margin-bottom: 8px; letter-spacing: 0.1em; }
+        .form-input { width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #eee; font-family: inherit; font-size: 0.9rem; outline: none; }
+        .btn-save { width: 100%; padding: 18px; border-radius: 20px; background: var(--l3-navy); color: #fff; font-weight: 800; border: none; margin-top: 20px; cursor: pointer; display: block; }
+        .btn-cancel { width: 100%; background: transparent; color: var(--l3-navy); opacity: 0.4; font-size: 0.7rem; font-weight: 800; border: none; margin-top: 15px; cursor: pointer; display: block; }
         .nav { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; background: #01162d; border-radius: 35px; display: flex; justify-content: space-around; padding: 22px 0; box-shadow: 0 25px 60px rgba(0,0,0,0.2); z-index: 2000; }
         .nav-item { color: rgba(255,255,255,0.25); text-align: center; font-size: 8px; font-weight: 800; text-decoration: none; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; }
         .nav-active { color: var(--l3-lime); opacity: 1; }
@@ -231,6 +237,7 @@
                         </div>
                     `).join('');
                 }
+                // 🟢 ログイン時もINFOを描画
                 renderInfo(data.infoData);
             }
         } catch (e) { }
@@ -246,7 +253,7 @@
                     <span class="accordion-icon">▼</span>
                 </button>
                 <div class="accordion-content">
-                    <div class="accordion-inner">${item.content.replace(/\n/g, '<br>')}</div>
+                    <div class="accordion-inner">${(item.content || "").replace(/\n/g, '<br>')}</div>
                 </div>
             </div>
         `).join('');
