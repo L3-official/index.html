@@ -8,6 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
+        /* デザイン設定（変更なし） */
         *, *::before, *::after { box-sizing: border-box; }
         :root { --l3-navy: #002b5b; --l3-lime: #e1ff00; --bg-body: #f8fafd; --text-main: #002b5b; --card-white: #ffffff; }
         body { background: var(--bg-body); color: var(--text-main); font-family: 'Outfit', sans-serif; margin: 0; padding-bottom: 140px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; -webkit-font-smoothing: antialiased; }
@@ -61,7 +62,6 @@
         .accordion-item.active .accordion-icon { transform: rotate(180deg); background: var(--l3-navy); color: var(--l3-lime); }
         .accordion-content { max-height: 0; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: #fcfdfe; }
         .accordion-inner { padding: 10px 25px 30px; font-size: 0.85rem; line-height: 1.8; color: var(--l3-navy); opacity: 0.8; }
-        /* 🟢 ハイライト装飾を復活 */
         .info-highlight { color: var(--l3-navy); font-weight: 800; border-bottom: 2px solid var(--l3-lime); }
         .nav { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; background: #01162d; border-radius: 35px; display: flex; justify-content: space-around; padding: 22px 0; box-shadow: 0 25px 60px rgba(0,0,0,0.2); z-index: 2000; }
         .nav-item { color: rgba(255,255,255,0.25); text-align: center; font-size: 8px; font-weight: 800; text-decoration: none; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; }
@@ -69,9 +69,7 @@
     </style>
 </head>
 <body>
-<header class="header-logo">
-    <img src="https://i.postimg.cc/Hx0QpFkr/l3-logo-official-transparent.png" alt="L3 Logo" class="logo-img">
-</header>
+<header class="header-logo"><img src="https://i.postimg.cc/Hx0QpFkr/l3-logo-official-transparent.png" alt="L3 Logo" class="logo-img"></header>
 <main class="container active" id="tab-mypage">
     <div class="lock-overlay"><div class="lock-msg">会員限定コンテンツです</div></div>
     <div class="l3-card membership-card">
@@ -107,10 +105,7 @@
         <button onclick="sendFeedback()" style="width:100%; padding:16px; border-radius:18px; background:var(--l3-navy); color:#fff; font-weight:800; border:none; cursor:pointer;">送信する</button>
     </div>
 </main>
-<main class="container" id="tab-list">
-    <div class="lock-overlay"><div class="lock-msg">会員限定コンテンツです</div></div>
-    <div id="list-root" class="list-grid"></div>
-</main>
+<main class="container" id="tab-list"><div class="lock-overlay"><div class="lock-msg">会員限定コンテンツです</div></div><div id="list-root" class="list-grid"></div></main>
 <main class="container" id="tab-info"><div id="info-accordion-root"></div></main>
 <nav class="nav">
     <div class="nav-item nav-active" id="nav-mypage" onclick="switchTab('mypage')">My Page</div>
@@ -123,27 +118,39 @@
 
     async function loadPortal() {
         const urlParams = new URLSearchParams(window.location.search);
-        let id = urlParams.get('id');
+        let surfaceId = urlParams.get('id'); // URLから A列のIDを取得
         const targetSection = urlParams.get('section');
+        let realLineId = null;
 
-        if (!id && typeof liff !== 'undefined') {
+        if (typeof liff !== 'undefined') {
             try {
                 await liff.init({ liffId: LIFF_ID });
                 if (!liff.isLoggedIn()) { liff.login(); return; }
-                const profile = await liff.getProfile(); id = profile.userId;
+                const profile = await liff.getProfile(); 
+                realLineId = profile.userId; // 本当の U... IDを取得
             } catch (err) { console.error("LIFFエラー", err); }
         }
+
+        // 🟢 ログインIDの決定（URL指定があれば優先、なければ本当のIDで自動ログイン）
+        let loginId = surfaceId || realLineId;
         if (targetSection === 'joinus') { switchTab('info'); }
-        if (!id || id === "---") {
+
+        if (!loginId || loginId === "---") {
             document.getElementById('tab-mypage').classList.add('locked');
             document.getElementById('tab-list').classList.add('locked');
             fetch(`${GAS_URL}?id=guest`).then(res => res.json()).then(data => renderInfo(data.infoData, targetSection));
             return; 
         }
+
         try {
-            const res = await fetch(`${GAS_URL}?id=${id}`);
+            const res = await fetch(`${GAS_URL}?id=${loginId}`);
             const data = await res.json();
             if(data.status === "success") {
+                // 🟢 【重要】自動紐付け処理：URLの表面IDでログインし、かつN列(RealId)が未登録なら自動登録
+                if (surfaceId && realLineId && !data.isLinked) {
+                    await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "link_real_id", surfaceId: surfaceId, realId: realLineId }) });
+                }
+
                 document.getElementById('display-name').innerText = data.userName;
                 const diff = new Date(data.graduationDate) - new Date();
                 const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
@@ -164,7 +171,7 @@
                 if (data.allMembers) {
                     const listRoot = document.getElementById('list-root');
                     listRoot.innerHTML = data.allMembers.map(m => `
-                        <div class="member-item ${m.id === id ? 'is-me' : ''} ${m.id === data.buddyId ? 'is-buddy' : ''}" onclick="toggleMember(this)">
+                        <div class="member-item ${m.id === loginId || m.realId === loginId ? 'is-me' : ''} ${m.id === data.buddyId ? 'is-buddy' : ''}" onclick="toggleMember(this)">
                             <div class="m-icon">${m.photo ? `<img src="${m.photo}" class="m-photo">` : m.name.substring(0,1)}</div>
                             <span class="m-name">${m.name}</span><span class="m-tag">${m.term}期</span>
                             <div class="detail-pane">
@@ -208,13 +215,12 @@
         document.querySelectorAll('.accordion-item').forEach(i => { i.classList.remove('active'); i.querySelector('.accordion-content').style.maxHeight = null; });
         if (!isActive) { item.classList.add('active'); content.style.maxHeight = content.scrollHeight + "px"; }
     }
-    async function takeAttendance() { const id = new URLSearchParams(window.location.search).get('id'); try { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "attendance", userId: id }) }); if((await res.json()).status === "success") { alert("出席を登録しました！📖"); loadPortal(); } } catch (e) { } }
-    async function recordBuddyStamp() { const id = new URLSearchParams(window.location.search).get('id'); try { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "buddy_stamp", userId: id, buddyId: window.currentBuddyId }) }); if((await res.json()).status === "success") { alert("交流を記録しました！🔥"); loadPortal(); } } catch (e) { } }
-    // 🟢 ご意見箱の送信機能を復活
+    async function takeAttendance() { const id = new URLSearchParams(window.location.search).get('id') || liff.getProfile().then(p => p.userId); try { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "attendance", userId: id }) }); if((await res.json()).status === "success") { alert("出席を登録しました！📖"); } } catch (e) { } }
+    async function recordBuddyStamp() { const id = new URLSearchParams(window.location.search).get('id') || liff.getProfile().then(p => p.userId); try { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "buddy_stamp", userId: id, buddyId: window.currentBuddyId }) }); if((await res.json()).status === "success") { alert("交流を記録しました！🔥"); } } catch (e) { } }
     async function sendFeedback() {
         const comment = document.getElementById('feedback-comment').value;
         if(!comment || !confirm("送信しますか？")) return;
-        const id = new URLSearchParams(window.location.search).get('id');
+        const id = new URLSearchParams(window.location.search).get('id') || liff.getProfile().then(p => p.userId);
         try {
             const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "feedback", userId: id, comment: comment }) });
             if((await res.json()).status === "success") { alert("送信完了しました！"); document.getElementById('feedback-comment').value = ''; }
