@@ -131,7 +131,6 @@
             } catch (err) { console.error("LIFFエラー", err); }
         }
 
-        // 🟢 ログインIDの決定（URL指定があれば優先、なければ本当のIDで自動ログイン）
         let loginId = surfaceId || realLineId;
         if (targetSection === 'joinus') { switchTab('info'); }
 
@@ -146,7 +145,6 @@
             const res = await fetch(`${GAS_URL}?id=${loginId}`);
             const data = await res.json();
             if(data.status === "success") {
-                // 🟢 【重要】自動紐付け処理：URLの表面IDでログインし、かつN列(RealId)が未登録なら自動登録
                 if (surfaceId && realLineId && !data.isLinked) {
                     await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "link_real_id", surfaceId: surfaceId, realId: realLineId }) });
                 }
@@ -168,6 +166,8 @@
                     slot.innerText = stamp ? stamp.name.substring(0,1) : '';
                     stampRoot.appendChild(slot);
                 }
+                
+                // 🟢 修正箇所：プロフィールカードの表示項目を G, I, J, K列に対応
                 if (data.allMembers) {
                     const listRoot = document.getElementById('list-root');
                     listRoot.innerHTML = data.allMembers.map(m => `
@@ -177,7 +177,10 @@
                             <div class="detail-pane">
                                 <div class="d-item"><span class="d-label">Nickname</span><span class="d-val">${m.nickname || "---"}</span></div>
                                 <div class="d-item"><span class="d-label">Experience</span><span class="d-val">${m.experience || "---"}</span></div>
-                                <div class="d-item d-full"><span class="d-label">Hobbies</span><span class="d-val">${m.hobbies || "---"}</span></div>
+                                <div class="d-item"><span class="d-label">Birth Year</span><span class="d-val">${m.birthYear || "---"}</span></div>
+                                <div class="d-item"><span class="d-label">Hobbies</span><span class="d-val">${m.hobbies || "---"}</span></div>
+                                <div class="d-item d-full"><span class="d-label">Favorite Manga</span><span class="d-val">${m.manga || "---"}</span></div>
+                                <div class="d-item d-full"><span class="d-label">Racket</span><span class="d-val">${m.racket || "---"}</span></div>
                             </div>
                         </div>`).join('');
                 }
@@ -185,6 +188,7 @@
             }
         } catch (e) { }
     }
+    
     function renderInfo(infoData, targetSection) {
         const infoRoot = document.getElementById('info-accordion-root');
         if(!infoData || infoData.length === 0) { infoRoot.innerHTML = '<p style="text-align:center; opacity:0.3; margin-top:40px;">お知らせはありません。</p>'; return; }
