@@ -62,7 +62,6 @@
         .accordion-item.active .accordion-icon { transform: rotate(180deg); background: var(--l3-navy); color: var(--l3-lime); }
         .accordion-content { max-height: 0; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: #fcfdfe; }
         .accordion-inner { padding: 10px 25px 30px; font-size: 0.85rem; line-height: 1.8; color: var(--l3-navy); opacity: 0.8; }
-        .info-highlight { color: var(--l3-navy); font-weight: 800; border-bottom: 2px solid var(--l3-lime); }
         .nav { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; background: #01162d; border-radius: 35px; display: flex; justify-content: space-around; padding: 22px 0; box-shadow: 0 25px 60px rgba(0,0,0,0.2); z-index: 2000; }
         .nav-item { color: rgba(255,255,255,0.25); text-align: center; font-size: 8px; font-weight: 800; text-decoration: none; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; }
         .nav-active { color: var(--l3-lime); opacity: 1; }
@@ -133,11 +132,10 @@
 
         let loginId = surfaceId || realLineId;
 
-        // 🟢 ゲスト判定（自動でInfoタブへ切り替え）
         if (!loginId || loginId === "---") {
             document.getElementById('tab-mypage').classList.add('locked');
             document.getElementById('tab-list').classList.add('locked');
-            switchTab('info'); 
+            switchTab('info'); // ゲストはInfoへ自動誘導
             fetch(`${GAS_URL}?id=guest`).then(res => res.json()).then(data => renderInfo(data.infoData, targetSection));
             return; 
         }
@@ -176,7 +174,7 @@
                     stampRoot.appendChild(slot);
                 }
 
-                // 🟢 【重要】名簿の並び替えロジック（自分→バディ→他）
+                // 🟢 並び替え：自分(1番目) → バディ(2番目) → その他
                 if (data.allMembers) {
                     const me = data.allMembers.find(m => m.id === loginId || m.realId === loginId);
                     const buddy = data.allMembers.find(m => m.id === data.buddyId || m.realId === data.buddyId);
@@ -184,12 +182,10 @@
                         m.id !== loginId && m.realId !== loginId && 
                         m.id !== data.buddyId && m.realId !== data.buddyId
                     );
-                    
-                    // 自分、バディ（いれば）、その他の順に配列を結合
-                    const sortedMembers = [me, buddy, ...others].filter(Boolean);
+                    const sorted = [me, buddy, ...others].filter(Boolean);
 
                     const listRoot = document.getElementById('list-root');
-                    listRoot.innerHTML = sortedMembers.map(m => `
+                    listRoot.innerHTML = sorted.map(m => `
                         <div class="member-item ${m.id === loginId || m.realId === loginId ? 'is-me' : ''} ${m.id === data.buddyId || m.realId === data.buddyId ? 'is-buddy' : ''}" onclick="toggleMember(this)">
                             <div class="m-icon">${m.photo ? `<img src="${m.photo}" class="m-photo">` : m.name.substring(0,1)}</div>
                             <span class="m-name">${m.name}</span><span class="m-tag">${m.term}期</span>
@@ -208,14 +204,22 @@
         } catch (e) { }
     }
     
+    // 🟢 URLリンク有効化の処理を追加したInfo描画関数
     function renderInfo(infoData, targetSection) {
         const infoRoot = document.getElementById('info-accordion-root');
         if(!infoData || infoData.length === 0) { infoRoot.innerHTML = '<p style="text-align:center; opacity:0.3; margin-top:40px;">お知らせはありません。</p>'; return; }
-        infoRoot.innerHTML = infoData.map(item => `
-            <div class="accordion-item" data-title="${item.title}">
-                <button class="accordion-trigger" onclick="toggleAccordion(this)"><span class="accordion-label">${item.title}</span><span class="accordion-icon">▼</span></button>
-                <div class="accordion-content"><div class="accordion-inner">${(item.content || "").replace(/\n/g, '<br>')}</div></div>
-            </div>`).join('');
+        
+        infoRoot.innerHTML = infoData.map(item => {
+            const linkedContent = (item.content || "")
+                .replace(/\n/g, '<br>')
+                .replace(/((https?:\/\/)[^\s]+)/g, '<a href="$1" target="_blank" style="color:var(--l3-navy); text-decoration:underline; font-weight:800;">$1</a>');
+            return `
+                <div class="accordion-item" data-title="${item.title}">
+                    <button class="accordion-trigger" onclick="toggleAccordion(this)"><span class="accordion-label">${item.title}</span><span class="accordion-icon">▼</span></button>
+                    <div class="accordion-content"><div class="accordion-inner">${linkedContent}</div></div>
+                </div>`;
+        }).join('');
+
         if (targetSection === 'joinus') {
             setTimeout(() => {
                 const items = document.querySelectorAll('.accordion-item');
@@ -233,7 +237,6 @@
             gsap.fromTo("#tab-" + tab, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 });
         }});
     }
-
     function toggleMember(el) { const isExpanded = el.classList.contains('expanded'); document.querySelectorAll('.member-item').forEach(m => m.classList.remove('expanded')); if (!isExpanded) { el.classList.add('expanded'); gsap.from(el.querySelector('.detail-pane'), { opacity: 0, y: -10, duration: 0.4 }); } }
     function toggleAccordion(el) {
         const item = el.parentElement; const content = item.querySelector('.accordion-content'); const isActive = item.classList.contains('active');
