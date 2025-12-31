@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
-        /* デザイン設定（変更なし） */
+        /* デザイン設定 */
         *, *::before, *::after { box-sizing: border-box; }
         :root { --l3-navy: #002b5b; --l3-lime: #e1ff00; --bg-body: #f8fafd; --text-main: #002b5b; --card-white: #ffffff; }
         body { background: var(--bg-body); color: var(--text-main); font-family: 'Outfit', sans-serif; margin: 0; padding-bottom: 140px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; -webkit-font-smoothing: antialiased; }
@@ -132,10 +132,11 @@
 
         let loginId = surfaceId || realLineId;
 
+        // 🟢 ゲスト判定（自動でInfoタブへ切り替え）
         if (!loginId || loginId === "---") {
             document.getElementById('tab-mypage').classList.add('locked');
             document.getElementById('tab-list').classList.add('locked');
-            switchTab('info'); // ゲストはInfoへ自動誘導
+            switchTab('info'); 
             fetch(`${GAS_URL}?id=guest`).then(res => res.json()).then(data => renderInfo(data.infoData, targetSection));
             return; 
         }
@@ -174,7 +175,7 @@
                     stampRoot.appendChild(slot);
                 }
 
-                // 🟢 並び替え：自分(1番目) → バディ(2番目) → その他
+                // 🟢 【重要】名簿の並び替えロジック（自分→バディ→他）
                 if (data.allMembers) {
                     const me = data.allMembers.find(m => m.id === loginId || m.realId === loginId);
                     const buddy = data.allMembers.find(m => m.id === data.buddyId || m.realId === data.buddyId);
@@ -182,10 +183,11 @@
                         m.id !== loginId && m.realId !== loginId && 
                         m.id !== data.buddyId && m.realId !== data.buddyId
                     );
-                    const sorted = [me, buddy, ...others].filter(Boolean);
+                    
+                    const sortedMembers = [me, buddy, ...others].filter(Boolean);
 
                     const listRoot = document.getElementById('list-root');
-                    listRoot.innerHTML = sorted.map(m => `
+                    listRoot.innerHTML = sortedMembers.map(m => `
                         <div class="member-item ${m.id === loginId || m.realId === loginId ? 'is-me' : ''} ${m.id === data.buddyId || m.realId === data.buddyId ? 'is-buddy' : ''}" onclick="toggleMember(this)">
                             <div class="m-icon">${m.photo ? `<img src="${m.photo}" class="m-photo">` : m.name.substring(0,1)}</div>
                             <span class="m-name">${m.name}</span><span class="m-tag">${m.term}期</span>
@@ -204,56 +206,55 @@
         } catch (e) { }
     }
     
-    // 🟢 URLリンク有効化の処理を追加したInfo描画関数
-   function renderInfo(infoData, targetSection) {
-    const infoRoot = document.getElementById('info-accordion-root');
-    if(!infoData || infoData.length === 0) { 
-        infoRoot.innerHTML = '<p style="text-align:center; opacity:0.3; margin-top:40px;">お知らせはありません。</p>'; 
-        return; 
-    }
-    
-    infoRoot.innerHTML = infoData.map(item => {
-        let content = (item.content || "");
+    // 🟢 差し替え版：URLリンク有効化および403エラー対策済み描画関数
+    function renderInfo(infoData, targetSection) {
+        const infoRoot = document.getElementById('info-accordion-root');
+        if(!infoData || infoData.length === 0) { 
+            infoRoot.innerHTML = '<p style="text-align:center; opacity:0.3; margin-top:40px;">お知らせはありません。</p>'; 
+            return; 
+        }
         
-        // 🟢 1. URLを抽出し、安全な<a>タグに変換（httpなしも対応）
-        // 文中のURL（www.やhttp://）を探してリンク化する、より強力なロジック
-        const urlPattern = /((https?:\/\/|www\.)[^\s<]+)/g;
-        content = content.replace(urlPattern, (url) => {
-            let href = url;
-            if (url.startsWith('www.')) href = 'https://' + url;
-            // 403エラーを防ぐため、末尾の不要な文字を除去
-            href = href.replace(/[.,;]$/, ''); 
-            return `<a href="${href}" target="_blank" style="color:var(--l3-navy); text-decoration:underline; font-weight:800; word-break:break-all;">${url}</a>`;
-        });
-
-        // 🟢 2. 改行を最後に反映
-        const linkedContent = content.replace(/\n/g, '<br>');
-        
-        return `
-            <div class="accordion-item" data-title="${item.title}">
-                <button class="accordion-trigger" onclick="toggleAccordion(this)">
-                    <span class="accordion-label">${item.title}</span>
-                    <span class="accordion-icon">▼</span>
-                </button>
-                <div class="accordion-content">
-                    <div class="accordion-inner" style="letter-spacing: 0.05em; color: rgba(0,43,91,0.7);">${linkedContent}</div>
-                </div>
-            </div>`;
-    }).join('');
-
-    // 特定セクション（JOIN USなど）の自動展開
-    if (targetSection === 'joinus') {
-        setTimeout(() => {
-            const items = document.querySelectorAll('.accordion-item');
-            items.forEach(item => {
-                const title = item.getAttribute('data-title').toUpperCase();
-                if (title.includes('JOIN US') || title.includes('入会')) {
-                    toggleAccordion(item.querySelector('.accordion-trigger'));
-                }
+        infoRoot.innerHTML = infoData.map(item => {
+            let content = (item.content || "");
+            
+            // 🟢 1. URLを抽出し、安全な<a>タグに変換（httpなしも対応）
+            const urlPattern = /((https?:\/\/|www\.)[^\s<]+)/g;
+            content = content.replace(urlPattern, (url) => {
+                let href = url;
+                if (url.startsWith('www.')) href = 'https://' + url;
+                // 403エラーを防ぐため、末尾の不要な文字を除去
+                href = href.replace(/[.,;]$/, ''); 
+                return `<a href="${href}" target="_blank" style="color:var(--l3-navy); text-decoration:underline; font-weight:800; word-break:break-all;">${url}</a>`;
             });
-        }, 500);
+
+            // 🟢 2. 改行を最後に反映
+            const linkedContent = content.replace(/\n/g, '<br>');
+            
+            return `
+                <div class="accordion-item" data-title="${item.title}">
+                    <button class="accordion-trigger" onclick="toggleAccordion(this)">
+                        <span class="accordion-label">${item.title}</span>
+                        <span class="accordion-icon">▼</span>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-inner" style="letter-spacing: 0.05em; color: rgba(0,43,91,0.7);">${linkedContent}</div>
+                    </div>
+                </div>`;
+        }).join('');
+
+        // 特定セクション（JOIN USなど）の自動展開
+        if (targetSection === 'joinus') {
+            setTimeout(() => {
+                const items = document.querySelectorAll('.accordion-item');
+                items.forEach(item => {
+                    const title = item.getAttribute('data-title').toUpperCase();
+                    if (title.includes('JOIN US') || title.includes('入会')) {
+                        toggleAccordion(item.querySelector('.accordion-trigger'));
+                    }
+                });
+            }, 500);
+        }
     }
-}
 
     function switchTab(tab) {
         gsap.fromTo(".container.active", { opacity: 1, y: 0 }, { opacity: 0, y: 10, duration: 0.3, onComplete: () => {
@@ -264,6 +265,7 @@
             gsap.fromTo("#tab-" + tab, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 });
         }});
     }
+
     function toggleMember(el) { const isExpanded = el.classList.contains('expanded'); document.querySelectorAll('.member-item').forEach(m => m.classList.remove('expanded')); if (!isExpanded) { el.classList.add('expanded'); gsap.from(el.querySelector('.detail-pane'), { opacity: 0, y: -10, duration: 0.4 }); } }
     function toggleAccordion(el) {
         const item = el.parentElement; const content = item.querySelector('.accordion-content'); const isActive = item.classList.contains('active');
