@@ -132,15 +132,12 @@
         }
 
         let loginId = surfaceId || realLineId;
-        
-        // 🟢 ゲスト判定時の自動切り替え処理を追加
+
+        // 🟢 ゲスト判定（自動でInfoタブへ切り替え）
         if (!loginId || loginId === "---") {
             document.getElementById('tab-mypage').classList.add('locked');
             document.getElementById('tab-list').classList.add('locked');
-            
-            // ゲストの場合は開いた瞬間にInfo（ハンドブック）タブを表示
             switchTab('info'); 
-            
             fetch(`${GAS_URL}?id=guest`).then(res => res.json()).then(data => renderInfo(data.infoData, targetSection));
             return; 
         }
@@ -162,7 +159,12 @@
                 const ratio = Math.max(0, Math.min(1, (1 - (days / 1095))));
                 gsap.to("#sand-top", { attr: { y: 10 + (70 * ratio), height: 70 * (1 - ratio) }, duration: 2.5 });
                 gsap.to("#sand-bottom", { attr: { y: 150 - (70 * ratio), height: 70 * ratio }, duration: 2.5 });
-                if (data.buddyName) { document.getElementById('buddy-display').innerText = data.buddyName; document.getElementById('btn-stamp').style.display = 'block'; window.currentBuddyId = data.buddyId; }
+                
+                if (data.buddyName) { 
+                    document.getElementById('buddy-display').innerText = data.buddyName; 
+                    document.getElementById('btn-stamp').style.display = 'block'; 
+                    window.currentBuddyId = data.buddyId; 
+                }
                 
                 const stampRoot = document.getElementById('stamp-root');
                 stampRoot.innerHTML = '';
@@ -174,10 +176,21 @@
                     stampRoot.appendChild(slot);
                 }
 
+                // 🟢 【重要】名簿の並び替えロジック（自分→バディ→他）
                 if (data.allMembers) {
+                    const me = data.allMembers.find(m => m.id === loginId || m.realId === loginId);
+                    const buddy = data.allMembers.find(m => m.id === data.buddyId || m.realId === data.buddyId);
+                    const others = data.allMembers.filter(m => 
+                        m.id !== loginId && m.realId !== loginId && 
+                        m.id !== data.buddyId && m.realId !== data.buddyId
+                    );
+                    
+                    // 自分、バディ（いれば）、その他の順に配列を結合
+                    const sortedMembers = [me, buddy, ...others].filter(Boolean);
+
                     const listRoot = document.getElementById('list-root');
-                    listRoot.innerHTML = data.allMembers.map(m => `
-                        <div class="member-item ${m.id === loginId || m.realId === loginId ? 'is-me' : ''} ${m.id === data.buddyId ? 'is-buddy' : ''}" onclick="toggleMember(this)">
+                    listRoot.innerHTML = sortedMembers.map(m => `
+                        <div class="member-item ${m.id === loginId || m.realId === loginId ? 'is-me' : ''} ${m.id === data.buddyId || m.realId === data.buddyId ? 'is-buddy' : ''}" onclick="toggleMember(this)">
                             <div class="m-icon">${m.photo ? `<img src="${m.photo}" class="m-photo">` : m.name.substring(0,1)}</div>
                             <span class="m-name">${m.name}</span><span class="m-tag">${m.term}期</span>
                             <div class="detail-pane">
