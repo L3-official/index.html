@@ -118,7 +118,7 @@
 
     async function loadPortal() {
         const urlParams = new URLSearchParams(window.location.search);
-        let surfaceId = urlParams.get('id'); // URLから A列のIDを取得
+        let surfaceId = urlParams.get('id'); 
         const targetSection = urlParams.get('section');
         let realLineId = null;
 
@@ -127,19 +127,25 @@
                 await liff.init({ liffId: LIFF_ID });
                 if (!liff.isLoggedIn()) { liff.login(); return; }
                 const profile = await liff.getProfile(); 
-                realLineId = profile.userId; // 本当の U... IDを取得
+                realLineId = profile.userId; 
             } catch (err) { console.error("LIFFエラー", err); }
         }
 
         let loginId = surfaceId || realLineId;
-        if (targetSection === 'joinus') { switchTab('info'); }
-
+        
+        // 🟢 ゲスト判定時の自動切り替え処理を追加
         if (!loginId || loginId === "---") {
             document.getElementById('tab-mypage').classList.add('locked');
             document.getElementById('tab-list').classList.add('locked');
+            
+            // ゲストの場合は開いた瞬間にInfo（ハンドブック）タブを表示
+            switchTab('info'); 
+            
             fetch(`${GAS_URL}?id=guest`).then(res => res.json()).then(data => renderInfo(data.infoData, targetSection));
             return; 
         }
+
+        if (targetSection === 'joinus') { switchTab('info'); }
 
         try {
             const res = await fetch(`${GAS_URL}?id=${loginId}`);
@@ -157,6 +163,7 @@
                 gsap.to("#sand-top", { attr: { y: 10 + (70 * ratio), height: 70 * (1 - ratio) }, duration: 2.5 });
                 gsap.to("#sand-bottom", { attr: { y: 150 - (70 * ratio), height: 70 * ratio }, duration: 2.5 });
                 if (data.buddyName) { document.getElementById('buddy-display').innerText = data.buddyName; document.getElementById('btn-stamp').style.display = 'block'; window.currentBuddyId = data.buddyId; }
+                
                 const stampRoot = document.getElementById('stamp-root');
                 stampRoot.innerHTML = '';
                 for (let i = 0; i < 12; i++) {
@@ -166,8 +173,7 @@
                     slot.innerText = stamp ? stamp.name.substring(0,1) : '';
                     stampRoot.appendChild(slot);
                 }
-                
-                // 🟢 修正箇所：プロフィールカードの表示項目を G, I, J, K列に対応
+
                 if (data.allMembers) {
                     const listRoot = document.getElementById('list-root');
                     listRoot.innerHTML = data.allMembers.map(m => `
@@ -204,6 +210,7 @@
             }, 500);
         }
     }
+
     function switchTab(tab) {
         gsap.fromTo(".container.active", { opacity: 1, y: 0 }, { opacity: 0, y: 10, duration: 0.3, onComplete: () => {
             document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
@@ -213,6 +220,7 @@
             gsap.fromTo("#tab-" + tab, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 });
         }});
     }
+
     function toggleMember(el) { const isExpanded = el.classList.contains('expanded'); document.querySelectorAll('.member-item').forEach(m => m.classList.remove('expanded')); if (!isExpanded) { el.classList.add('expanded'); gsap.from(el.querySelector('.detail-pane'), { opacity: 0, y: -10, duration: 0.4 }); } }
     function toggleAccordion(el) {
         const item = el.parentElement; const content = item.querySelector('.accordion-content'); const isActive = item.classList.contains('active');
