@@ -205,28 +205,55 @@
     }
     
     // 🟢 URLリンク有効化の処理を追加したInfo描画関数
-    function renderInfo(infoData, targetSection) {
-        const infoRoot = document.getElementById('info-accordion-root');
-        if(!infoData || infoData.length === 0) { infoRoot.innerHTML = '<p style="text-align:center; opacity:0.3; margin-top:40px;">お知らせはありません。</p>'; return; }
-        
-        infoRoot.innerHTML = infoData.map(item => {
-            const linkedContent = (item.content || "")
-                .replace(/\n/g, '<br>')
-                .replace(/((https?:\/\/)[^\s]+)/g, '<a href="$1" target="_blank" style="color:var(--l3-navy); text-decoration:underline; font-weight:800;">$1</a>');
-            return `
-                <div class="accordion-item" data-title="${item.title}">
-                    <button class="accordion-trigger" onclick="toggleAccordion(this)"><span class="accordion-label">${item.title}</span><span class="accordion-icon">▼</span></button>
-                    <div class="accordion-content"><div class="accordion-inner">${linkedContent}</div></div>
-                </div>`;
-        }).join('');
-
-        if (targetSection === 'joinus') {
-            setTimeout(() => {
-                const items = document.querySelectorAll('.accordion-item');
-                items.forEach(item => { if (item.getAttribute('data-title').toUpperCase().includes('JOIN US') || item.getAttribute('data-title').includes('入会')) { toggleAccordion(item.querySelector('.accordion-trigger')); } });
-            }, 500);
-        }
+   function renderInfo(infoData, targetSection) {
+    const infoRoot = document.getElementById('info-accordion-root');
+    if(!infoData || infoData.length === 0) { 
+        infoRoot.innerHTML = '<p style="text-align:center; opacity:0.3; margin-top:40px;">お知らせはありません。</p>'; 
+        return; 
     }
+    
+    infoRoot.innerHTML = infoData.map(item => {
+        let content = (item.content || "");
+        
+        // 🟢 1. URLを抽出し、安全な<a>タグに変換（httpなしも対応）
+        // 文中のURL（www.やhttp://）を探してリンク化する、より強力なロジック
+        const urlPattern = /((https?:\/\/|www\.)[^\s<]+)/g;
+        content = content.replace(urlPattern, (url) => {
+            let href = url;
+            if (url.startsWith('www.')) href = 'https://' + url;
+            // 403エラーを防ぐため、末尾の不要な文字を除去
+            href = href.replace(/[.,;]$/, ''); 
+            return `<a href="${href}" target="_blank" style="color:var(--l3-navy); text-decoration:underline; font-weight:800; word-break:break-all;">${url}</a>`;
+        });
+
+        // 🟢 2. 改行を最後に反映
+        const linkedContent = content.replace(/\n/g, '<br>');
+        
+        return `
+            <div class="accordion-item" data-title="${item.title}">
+                <button class="accordion-trigger" onclick="toggleAccordion(this)">
+                    <span class="accordion-label">${item.title}</span>
+                    <span class="accordion-icon">▼</span>
+                </button>
+                <div class="accordion-content">
+                    <div class="accordion-inner" style="letter-spacing: 0.05em; color: rgba(0,43,91,0.7);">${linkedContent}</div>
+                </div>
+            </div>`;
+    }).join('');
+
+    // 特定セクション（JOIN USなど）の自動展開
+    if (targetSection === 'joinus') {
+        setTimeout(() => {
+            const items = document.querySelectorAll('.accordion-item');
+            items.forEach(item => {
+                const title = item.getAttribute('data-title').toUpperCase();
+                if (title.includes('JOIN US') || title.includes('入会')) {
+                    toggleAccordion(item.querySelector('.accordion-trigger'));
+                }
+            });
+        }, 500);
+    }
+}
 
     function switchTab(tab) {
         gsap.fromTo(".container.active", { opacity: 1, y: 0 }, { opacity: 0, y: 10, duration: 0.3, onComplete: () => {
