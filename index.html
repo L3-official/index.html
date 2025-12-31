@@ -62,6 +62,7 @@
         .accordion-item.active .accordion-icon { transform: rotate(180deg); background: var(--l3-navy); color: var(--l3-lime); }
         .accordion-content { max-height: 0; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: #fcfdfe; }
         .accordion-inner { padding: 10px 25px 30px; font-size: 0.85rem; line-height: 1.8; color: var(--l3-navy); opacity: 0.8; }
+        .info-highlight { color: var(--l3-navy); font-weight: 800; border-bottom: 2px solid var(--l3-lime); }
         .nav { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; background: #01162d; border-radius: 35px; display: flex; justify-content: space-around; padding: 22px 0; box-shadow: 0 25px 60px rgba(0,0,0,0.2); z-index: 2000; }
         .nav-item { color: rgba(255,255,255,0.25); text-align: center; font-size: 8px; font-weight: 800; text-decoration: none; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; }
         .nav-active { color: var(--l3-lime); opacity: 1; }
@@ -132,7 +133,6 @@
 
         let loginId = surfaceId || realLineId;
 
-        // 🟢 ゲスト判定（自動でInfoタブへ切り替え）
         if (!loginId || loginId === "---") {
             document.getElementById('tab-mypage').classList.add('locked');
             document.getElementById('tab-list').classList.add('locked');
@@ -175,7 +175,6 @@
                     stampRoot.appendChild(slot);
                 }
 
-                // 🟢 【重要】名簿の並び替えロジック（自分→バディ→他）
                 if (data.allMembers) {
                     const me = data.allMembers.find(m => m.id === loginId || m.realId === loginId);
                     const buddy = data.allMembers.find(m => m.id === data.buddyId || m.realId === data.buddyId);
@@ -206,7 +205,6 @@
         } catch (e) { }
     }
     
-    // 🟢 差し替え版：URLリンク有効化および403エラー対策済み描画関数
     function renderInfo(infoData, targetSection) {
         const infoRoot = document.getElementById('info-accordion-root');
         if(!infoData || infoData.length === 0) { 
@@ -217,17 +215,16 @@
         infoRoot.innerHTML = infoData.map(item => {
             let content = (item.content || "");
             
-            // 🟢 1. URLを抽出し、安全な<a>タグに変換（httpなしも対応）
+            // 🟢 URLをリンクに変換
             const urlPattern = /((https?:\/\/|www\.)[^\s<]+)/g;
             content = content.replace(urlPattern, (url) => {
                 let href = url;
                 if (url.startsWith('www.')) href = 'https://' + url;
-                // 403エラーを防ぐため、末尾の不要な文字を除去
                 href = href.replace(/[.,;]$/, ''); 
                 return `<a href="${href}" target="_blank" style="color:var(--l3-navy); text-decoration:underline; font-weight:800; word-break:break-all;">${url}</a>`;
             });
 
-            // 🟢 2. 改行を最後に反映
+            // 🟢 改行を反映
             const linkedContent = content.replace(/\n/g, '<br>');
             
             return `
@@ -242,7 +239,6 @@
                 </div>`;
         }).join('');
 
-        // 特定セクション（JOIN USなど）の自動展開
         if (targetSection === 'joinus') {
             setTimeout(() => {
                 const items = document.querySelectorAll('.accordion-item');
