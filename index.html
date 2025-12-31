@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
-        /* 💎 シンプルなデザイン設定（元に戻しました） */
+        /* デザイン設定（変更なし） */
         *, *::before, *::after { box-sizing: border-box; }
         :root { --l3-navy: #002b5b; --l3-lime: #e1ff00; --bg-body: #f8fafd; --text-main: #002b5b; --card-white: #ffffff; }
         body { background: var(--bg-body); color: var(--text-main); font-family: 'Outfit', sans-serif; margin: 0; padding-bottom: 140px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; -webkit-font-smoothing: antialiased; }
@@ -21,21 +21,25 @@
         .lock-msg { background: var(--l3-navy); color: #fff; padding: 15px 25px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.2em; }
         .locked .lock-overlay { display: flex; }
         .locked > *:not(.lock-overlay) { pointer-events: none; }
+        .membership-card { border-top: 1px solid rgba(0, 43, 91, 0.1); }
         .member-status { font-size: 0.65rem; letter-spacing: 0.4em; font-weight: 500; opacity: 0.4; margin-bottom: 20px; display: block; text-transform: uppercase; }
         .member-name { font-family: 'Shippori Mincho', serif; font-size: 2.5rem; margin: 15px 0; font-weight: 800; letter-spacing: 0.15em; color: var(--l3-navy); line-height: 1.1; }
         .hourglass-visual { position: relative; width: 130px; height: 160px; margin: 30px auto; }
-        .glass-frame { fill: none; stroke: var(--l3-navy); stroke-width: 3; stroke-linecap: round; }
+        .hourglass-svg { width: 100%; height: 100%; }
+        .glass-frame { fill: none; stroke: var(--l3-navy); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
         .sand-fill { fill: var(--l3-lime); }
+        .sand-grain { fill: var(--l3-lime); opacity: 0.6; }
         .remain-label { font-size: 0.65rem; font-weight: 500; opacity: 0.3; letter-spacing: 0.3em; margin-bottom: 5px; }
         .remain-val { font-size: 2.6rem; color: var(--l3-navy); font-weight: 800; letter-spacing: -0.02em; }
         .remain-unit { font-size: 0.8rem; font-weight: 500; opacity: 0.4; letter-spacing: 0.1em; margin-left: 5px;}
-        .btn-attendance { width: 100%; padding: 22px; border-radius: 24px; background: var(--l3-navy); color: #fff; font-weight: 800; font-size: 1.1rem; border: none; cursor: pointer; transition: transform 0.1s; }
+        .btn-attendance { width: 100%; padding: 22px; border-radius: 24px; background: var(--l3-navy); color: #fff; font-weight: 800; font-size: 1.1rem; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; transition: transform 0.1s; }
         .btn-attendance:active { transform: scale(0.96); }
         .buddy-label { font-size: 0.7rem; font-weight: 800; opacity: 0.3; letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 15px; }
         .buddy-name-display { font-family: 'Shippori Mincho', serif; font-size: 1.8rem; font-weight: 800; color: var(--l3-navy); margin-bottom: 20px; }
         .stamp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 25px; }
         .slot { aspect-ratio: 1/1; background: #f9fafb; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700; color: #dce3e9; border: 1px solid #f0f3f6; }
         .slot.filled { background: var(--l3-navy); color: var(--l3-lime); border: none; }
+        .feedback-area { width: 100%; min-height: 100px; border-radius: 20px; border: 1px solid rgba(0, 43, 91, 0.1); background: #f9fafb; padding: 18px; font-family: inherit; font-size: 0.95rem; color: var(--l3-navy); resize: none; margin-bottom: 15px; outline: none; display: block; }
         .list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
         .member-item { background: #fff; border-radius: 28px; padding: 20px 15px; border: 1px solid rgba(0,43,91,0.04); text-align: center; overflow: hidden; }
         .member-item.is-me { border: 2.5px solid var(--l3-navy); }
@@ -43,14 +47,19 @@
         .m-icon { width: 60px; height: 60px; background: #f0f4f8; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; overflow: hidden; }
         .m-photo { width: 100%; height: 100%; object-fit: cover; }
         .m-name { font-family: 'Shippori Mincho', serif; font-size: 0.95rem; font-weight: 800; color: var(--l3-navy); display: block; }
+        .m-tag { font-size: 0.55rem; font-weight: 800; opacity: 0.3; letter-spacing: 0.1em; margin-top: 5px; display: block; }
         .detail-pane { display: none; margin-top: 20px; text-align: left; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 20px; grid-template-columns: 1fr 1fr; gap: 20px 15px; }
         .member-item.expanded { grid-column: span 2; padding: 30px 20px; }
         .member-item.expanded .detail-pane { display: grid; }
+        .d-item { display: flex; flex-direction: column; gap: 4px; }
+        .d-full { grid-column: span 2; }
         .d-label { font-size: 0.55rem; color: #94a3b8; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
         .d-val { font-size: 0.85rem; color: var(--l3-navy); font-weight: 800; line-height: 1.4; word-break: break-all; }
-        .accordion-item { background: #fff; border-radius: 25px; margin-bottom: 12px; overflow: hidden; border: 1px solid rgba(0,43,91,0.03); }
+        .accordion-item { background: #fff; border-radius: 25px; margin-bottom: 12px; overflow: hidden; border: 1px solid rgba(0,43,91,0.03); box-shadow: 0 10px 30px rgba(0,43,91,0.02); }
         .accordion-trigger { width: 100%; padding: 22px 25px; display: flex; align-items: center; justify-content: space-between; background: none; border: none; cursor: pointer; text-align: left; }
-        .accordion-label { font-family: 'Shippori Mincho', serif; font-size: 1rem; font-weight: 800; color: var(--l3-navy); }
+        .accordion-label { font-family: 'Shippori Mincho', serif; font-size: 1rem; font-weight: 800; color: var(--l3-navy); display: flex; align-items: center; gap: 12px; }
+        .accordion-icon { width: 24px; height: 24px; background: #f0f4f8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: var(--l3-navy); transition: transform 0.3s; }
+        .accordion-item.active .accordion-icon { transform: rotate(180deg); background: var(--l3-navy); color: var(--l3-lime); }
         .accordion-content { max-height: 0; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: #fcfdfe; }
         .accordion-inner { padding: 10px 25px 30px; font-size: 0.85rem; line-height: 1.8; color: var(--l3-navy); opacity: 0.8; }
         .nav { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; background: #01162d; border-radius: 35px; display: flex; justify-content: space-around; padding: 22px 0; box-shadow: 0 25px 60px rgba(0,0,0,0.2); z-index: 2000; }
@@ -59,22 +68,23 @@
     </style>
 </head>
 <body>
-
 <header class="header-logo"><img src="https://i.postimg.cc/Hx0QpFkr/l3-logo-official-transparent.png" alt="L3 Logo" class="logo-img"></header>
-
 <main class="container active" id="tab-mypage">
     <div class="lock-overlay"><div class="lock-msg">会員限定コンテンツです</div></div>
     <div class="l3-card membership-card">
         <span class="member-status">L3 Official Member</span>
         <h2 id="display-name" class="member-name">---</h2>
         <div class="hourglass-visual">
-            <svg viewBox="0 0 100 160">
-                <defs><path id="glassShape" d="M5,10 L95,10 C95,10 90,50 55,80 C90,110 95,150 95,150 L5,150 C5,150 10,110 45,80 C10,50 5,10 5,10 Z" /></defs>
+            <svg class="hourglass-svg" viewBox="0 0 100 160">
+                <defs>
+                    <path id="glassShape" d="M5,10 L95,10 C95,10 90,50 55,80 C90,110 95,150 95,150 L5,150 C5,150 10,110 45,80 C10,50 5,10 5,10 Z" />
+                    <clipPath id="globalClip"><use href="#glassShape"/></clipPath>
+                </defs>
                 <use href="#glassShape" class="glass-frame" />
-                <clipPath id="globalClip"><use href="#glassShape"/></clipPath>
                 <g clip-path="url(#globalClip)">
                     <rect id="sand-top" class="sand-fill" x="5" y="10" width="90" height="0" />
                     <rect id="sand-bottom" class="sand-fill" x="5" y="150" width="90" height="0" />
+                    <circle id="sand-stream" class="sand-grain" cx="50" cy="80" r="1.5" style="display:none;"/>
                 </g>
             </svg>
         </div>
@@ -85,28 +95,22 @@
         <div class="buddy-label">本日のバディ</div>
         <div id="buddy-display" class="buddy-name-display">---</div>
         <button id="btn-stamp" onclick="recordBuddyStamp()" style="display:none; margin-bottom:15px; width:100%; padding:16px; border-radius:16px; border:none; background:var(--l3-lime); color:var(--l3-navy); font-weight:800; cursor:pointer;">交流を記録する</button>
+        <div class="buddy-label" style="margin-top:20px; margin-bottom:10px;">BUDDY COLLECTION</div>
         <div id="stamp-root" class="stamp-grid"></div>
     </div>
     <div class="l3-card">
         <div class="buddy-label">運営へのご意見箱</div>
-        <textarea id="feedback-comment" style="width:100%; min-height:100px; border-radius:20px; border:1px solid rgba(0, 43, 91, 0.1); background:#f9fafb; padding:18px; font-family:inherit; color:var(--l3-navy); outline:none; margin-bottom:15px;" placeholder="要望を入力してください..."></textarea>
+        <textarea id="feedback-comment" class="feedback-area" placeholder="要望やメッセージを入力してください..."></textarea>
         <button onclick="sendFeedback()" style="width:100%; padding:16px; border-radius:18px; background:var(--l3-navy); color:#fff; font-weight:800; border:none; cursor:pointer;">送信する</button>
     </div>
 </main>
-
-<main class="container" id="tab-list">
-    <div class="lock-overlay"><div class="lock-msg">会員限定コンテンツです</div></div>
-    <div id="list-root" class="list-grid"></div>
-</main>
-
+<main class="container" id="tab-list"><div class="lock-overlay"><div class="lock-msg">会員限定コンテンツです</div></div><div id="list-root" class="list-grid"></div></main>
 <main class="container" id="tab-info"><div id="info-accordion-root"></div></main>
-
 <nav class="nav">
     <div class="nav-item nav-active" id="nav-mypage" onclick="switchTab('mypage')">My Page</div>
     <div class="nav-item" id="nav-list" onclick="switchTab('list')">List</div>
     <div class="nav-item" id="nav-info" onclick="switchTab('info')">Info</div>
 </nav>
-
 <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycby21EhDYkN_Gjzad4ks8hsyquV61hhuI2VKylGAQwyYvpmvP1iZowqIaM6RdR64HVJeOA/exec";
     const LIFF_ID = "2008760618-igOldYtb"; 
@@ -128,11 +132,10 @@
 
         let loginId = surfaceId || realLineId;
 
-        // 🟢 ゲストはInfoへ自動案内
         if (!loginId || loginId === "---") {
             document.getElementById('tab-mypage').classList.add('locked');
             document.getElementById('tab-list').classList.add('locked');
-            switchTab('info'); 
+            switchTab('info'); // ゲストはInfoへ自動誘導
             fetch(`${GAS_URL}?id=guest`).then(res => res.json()).then(data => renderInfo(data.infoData, targetSection));
             return; 
         }
@@ -160,7 +163,7 @@
                     document.getElementById('btn-stamp').style.display = 'block'; 
                     window.currentBuddyId = data.buddyId; 
                 }
-
+                
                 const stampRoot = document.getElementById('stamp-root');
                 stampRoot.innerHTML = '';
                 for (let i = 0; i < 12; i++) {
@@ -171,18 +174,21 @@
                     stampRoot.appendChild(slot);
                 }
 
-                // 🟢 並び替え：自分 → バディ → その他
+                // 🟢 並び替え：自分(1番目) → バディ(2番目) → その他
                 if (data.allMembers) {
                     const me = data.allMembers.find(m => m.id === loginId || m.realId === loginId);
                     const buddy = data.allMembers.find(m => m.id === data.buddyId || m.realId === data.buddyId);
-                    const others = data.allMembers.filter(m => m.id !== loginId && m.realId !== loginId && m.id !== data.buddyId && m.realId !== data.buddyId);
+                    const others = data.allMembers.filter(m => 
+                        m.id !== loginId && m.realId !== loginId && 
+                        m.id !== data.buddyId && m.realId !== data.buddyId
+                    );
                     const sorted = [me, buddy, ...others].filter(Boolean);
 
                     const listRoot = document.getElementById('list-root');
                     listRoot.innerHTML = sorted.map(m => `
                         <div class="member-item ${m.id === loginId || m.realId === loginId ? 'is-me' : ''} ${m.id === data.buddyId || m.realId === data.buddyId ? 'is-buddy' : ''}" onclick="toggleMember(this)">
                             <div class="m-icon">${m.photo ? `<img src="${m.photo}" class="m-photo">` : m.name.substring(0,1)}</div>
-                            <span class="m-name">${m.name}</span><span class="m-tag" style="font-size:0.55rem; opacity:0.3; font-weight:800; text-transform:uppercase; margin-top:2px;">${m.term}期</span>
+                            <span class="m-name">${m.name}</span><span class="m-tag">${m.term}期</span>
                             <div class="detail-pane">
                                 <div class="d-item"><span class="d-label">Nickname</span><span class="d-val">${m.nickname || "---"}</span></div>
                                 <div class="d-item"><span class="d-label">Experience</span><span class="d-val">${m.experience || "---"}</span></div>
@@ -198,24 +204,18 @@
         } catch (e) { }
     }
     
-    // 🟢 修正：403エラーを防ぐ高度なURL抽出ロジック
+    // 🟢 URLリンク有効化の処理を追加したInfo描画関数
     function renderInfo(infoData, targetSection) {
         const infoRoot = document.getElementById('info-accordion-root');
         if(!infoData || infoData.length === 0) { infoRoot.innerHTML = '<p style="text-align:center; opacity:0.3; margin-top:40px;">お知らせはありません。</p>'; return; }
         
         infoRoot.innerHTML = infoData.map(item => {
-            let content = (item.content || "");
-            const urlPattern = /((https?:\/\/|www\.)[^\s<"']+)/g;
-            content = content.replace(urlPattern, (url) => {
-                let href = url.startsWith('www.') ? 'https://' + url : url;
-                href = href.replace(/[.,;]$/, ''); // 末尾の記号を除去
-                return `<a href="${href}" target="_blank" style="color:var(--l3-navy); text-decoration:underline; font-weight:800; word-break:break-all;">${url}</a>`;
-            });
-
-            const linkedContent = content.replace(/\n/g, '<br>');
+            const linkedContent = (item.content || "")
+                .replace(/\n/g, '<br>')
+                .replace(/((https?:\/\/)[^\s]+)/g, '<a href="$1" target="_blank" style="color:var(--l3-navy); text-decoration:underline; font-weight:800;">$1</a>');
             return `
                 <div class="accordion-item" data-title="${item.title}">
-                    <button class="accordion-trigger" onclick="toggleAccordion(this)"><span class="accordion-label">${item.title}</span><span style="font-size:0.8rem; opacity:0.3;">▼</span></button>
+                    <button class="accordion-trigger" onclick="toggleAccordion(this)"><span class="accordion-label">${item.title}</span><span class="accordion-icon">▼</span></button>
                     <div class="accordion-content"><div class="accordion-inner">${linkedContent}</div></div>
                 </div>`;
         }).join('');
@@ -223,7 +223,7 @@
         if (targetSection === 'joinus') {
             setTimeout(() => {
                 const items = document.querySelectorAll('.accordion-item');
-                items.forEach(item => { if (item.getAttribute('data-title').toUpperCase().includes('JOIN') || item.getAttribute('data-title').includes('入会')) { toggleAccordion(item.querySelector('.accordion-trigger')); } });
+                items.forEach(item => { if (item.getAttribute('data-title').toUpperCase().includes('JOIN US') || item.getAttribute('data-title').includes('入会')) { toggleAccordion(item.querySelector('.accordion-trigger')); } });
             }, 500);
         }
     }
@@ -237,28 +237,18 @@
             gsap.fromTo("#tab-" + tab, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 });
         }});
     }
-
-    function toggleMember(el) { 
-        const isExpanded = el.classList.contains('expanded'); 
-        document.querySelectorAll('.member-item').forEach(m => m.classList.remove('expanded')); 
-        if (!isExpanded) { 
-            el.classList.add('expanded'); 
-            gsap.from(el.querySelector('.detail-pane'), { opacity: 0, y: -10, duration: 0.4 }); 
-        } 
-    }
-    
+    function toggleMember(el) { const isExpanded = el.classList.contains('expanded'); document.querySelectorAll('.member-item').forEach(m => m.classList.remove('expanded')); if (!isExpanded) { el.classList.add('expanded'); gsap.from(el.querySelector('.detail-pane'), { opacity: 0, y: -10, duration: 0.4 }); } }
     function toggleAccordion(el) {
         const item = el.parentElement; const content = item.querySelector('.accordion-content'); const isActive = item.classList.contains('active');
         document.querySelectorAll('.accordion-item').forEach(i => { i.classList.remove('active'); i.querySelector('.accordion-content').style.maxHeight = null; });
         if (!isActive) { item.classList.add('active'); content.style.maxHeight = content.scrollHeight + "px"; }
     }
-    
-    async function takeAttendance() { const id = new URLSearchParams(window.location.search).get('id') || (await liff.getProfile()).userId; try { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "attendance", userId: id }) }); if((await res.json()).status === "success") { alert("出席を登録しました！📖"); } } catch (e) { } }
-    async function recordBuddyStamp() { const id = new URLSearchParams(window.location.search).get('id') || (await liff.getProfile()).userId; try { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "buddy_stamp", userId: id, buddyId: window.currentBuddyId }) }); if((await res.json()).status === "success") { alert("交流を記録しました！🔥"); } } catch (e) { } }
+    async function takeAttendance() { const id = new URLSearchParams(window.location.search).get('id') || liff.getProfile().then(p => p.userId); try { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "attendance", userId: id }) }); if((await res.json()).status === "success") { alert("出席を登録しました！📖"); } } catch (e) { } }
+    async function recordBuddyStamp() { const id = new URLSearchParams(window.location.search).get('id') || liff.getProfile().then(p => p.userId); try { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "buddy_stamp", userId: id, buddyId: window.currentBuddyId }) }); if((await res.json()).status === "success") { alert("交流を記録しました！🔥"); } } catch (e) { } }
     async function sendFeedback() {
         const comment = document.getElementById('feedback-comment').value;
         if(!comment || !confirm("送信しますか？")) return;
-        const id = new URLSearchParams(window.location.search).get('id') || (await liff.getProfile()).userId;
+        const id = new URLSearchParams(window.location.search).get('id') || liff.getProfile().then(p => p.userId);
         try {
             const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "feedback", userId: id, comment: comment }) });
             if((await res.json()).status === "success") { alert("送信完了しました！"); document.getElementById('feedback-comment').value = ''; }
