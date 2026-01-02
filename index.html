@@ -205,6 +205,7 @@
         } catch (e) { }
     }
     
+    // 🟢 ここが今回修正した関数です
     function renderInfo(infoData, targetSection) {
         const infoRoot = document.getElementById('info-accordion-root');
         if(!infoData || infoData.length === 0) { 
@@ -215,14 +216,16 @@
         infoRoot.innerHTML = infoData.map(item => {
             let content = (item.content || "");
             
-            // 🟢 URLをリンクに変換
-            const urlPattern = /((https?:\/\/|www\.)[^\s<]+)/g;
-            content = content.replace(urlPattern, (url) => {
-                let href = url;
-                if (url.startsWith('www.')) href = 'https://' + url;
-                href = href.replace(/[.,;]$/, ''); 
-                return `<a href="${href}" target="_blank" style="color:var(--l3-navy); text-decoration:underline; font-weight:800; word-break:break-all;">${url}</a>`;
-            });
+            // 🟢 すでに <a> タグ（リンク）が書き込まれている場合は自動変換をスキップ
+            if (!content.includes('<a')) {
+                const urlPattern = /((https?:\/\/|www\.)[^\s<]+)/g;
+                content = content.replace(urlPattern, (url) => {
+                    let href = url;
+                    if (url.startsWith('www.')) href = 'https://' + url;
+                    href = href.replace(/[.,;]$/, ''); 
+                    return `<a href="${href}" target="_blank" style="color:var(--l3-navy); text-decoration:underline; font-weight:800; word-break:break-all;">${url}</a>`;
+                });
+            }
 
             // 🟢 改行を反映
             const linkedContent = content.replace(/\n/g, '<br>');
