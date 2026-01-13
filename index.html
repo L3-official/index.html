@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>L3 Portal | Athletic Luxury</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;500;800&family=Shippori+Mincho:wght@700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -10,82 +9,64 @@
     <style>
         :root { --l3-navy: #002b5b; --l3-lime: #e1ff00; --bg-body: #f8fafd; --card-white: #ffffff; }
         body { background: var(--bg-body); color: var(--l3-navy); font-family: 'Outfit', sans-serif; margin: 0; padding-bottom: 140px; -webkit-font-smoothing: antialiased; }
-        
         .header-logo { width: 100%; padding: 50px 0 30px; display: flex; justify-content: center; background: #fff; margin-bottom: 25px; }
-        .logo-img { width: 180px; height: auto; object-fit: contain; }
-
+        .logo-img { width: 180px; height: auto; }
         .container { width: 92%; max-width: 400px; margin: 0 auto; display: none; flex-direction: column; gap: 25px; }
         .container.active { display: flex; }
-
-        .l3-card { background: var(--card-white); border-radius: 40px; padding: 40px 30px; box-shadow: 0 20px 50px rgba(0, 43, 91, 0.04); text-align: center; position: relative; }
-        .member-name { font-family: 'Shippori Mincho', serif; font-size: 2.5rem; margin: 15px 0; font-weight: 800; letter-spacing: 0.1em; }
-
+        .l3-card { background: var(--card-white); border-radius: 40px; padding: 40px 30px; box-shadow: 0 20px 50px rgba(0, 43, 91, 0.04); text-align: center; }
+        .member-name { font-family: 'Shippori Mincho', serif; font-size: 2.5rem; margin: 15px 0; font-weight: 800; }
+        
         /* 砂時計 */
         .hourglass-visual { position: relative; width: 130px; height: 160px; margin: 30px auto; }
         .glass-frame { fill: none; stroke: var(--l3-navy); stroke-width: 3; stroke-linecap: round; }
         .sand-fill { fill: var(--l3-lime); }
 
-        /* リストとプロフィールの展開 */
+        /* プロフィールカード展開 */
         .list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .m-card { background: #fff; border-radius: 28px; padding: 20px 15px; text-align: center; border: 1px solid rgba(0,43,91,0.03); cursor: pointer; transition: all 0.3s; overflow: hidden; }
+        .m-card { background: #fff; border-radius: 28px; padding: 20px 15px; text-align: center; border: 1px solid rgba(0,43,91,0.03); cursor: pointer; transition: 0.3s; overflow: hidden; }
         .m-card.expanded { grid-column: span 2; padding: 30px 20px; }
         .m-icon { width: 60px; height: 60px; background: #f0f4f8; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .m-img { width: 100%; height: 100%; object-fit: cover; }
         .m-logo-small { width: 35px; opacity: 0.3; }
 
-        .detail-pane { display: none; margin-top: 20px; text-align: left; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 20px; grid-template-columns: 1fr 1fr; gap: 20px 15px; }
+        .detail-pane { display: none; margin-top: 20px; text-align: left; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 20px; grid-template-columns: 1fr 1fr; gap: 15px; }
         .m-card.expanded .detail-pane { display: grid; }
         .d-item { display: flex; flex-direction: column; gap: 4px; }
-        .d-full { grid-column: span 2; }
-        .d-label { font-size: 0.55rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; }
+        .d-label { font-size: 0.55rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; }
         .d-val { font-size: 0.85rem; color: var(--l3-navy); font-weight: 800; }
 
-        /* ご意見箱 */
-        .feedback-area { width: 100%; min-height: 120px; border-radius: 20px; border: 1px solid rgba(0, 43, 91, 0.1); background: #f9fafb; padding: 18px; font-family: inherit; font-size: 0.9rem; color: var(--l3-navy); margin: 15px 0; outline: none; }
-        .btn-send { width: 100%; padding: 15px; border-radius: 15px; background: var(--l3-navy); color: #fff; border: none; font-weight: 800; cursor: pointer; }
-
-        /* お知らせアコーディオン */
+        /* お知らせ・ご意見箱 */
         .accordion-item { background: #fff; border-radius: 25px; margin-bottom: 12px; overflow: hidden; }
-        .accordion-trigger { width: 100%; padding: 22px 25px; display: flex; align-items: center; justify-content: space-between; background: none; border: none; cursor: pointer; text-align: left; }
-        .accordion-label { font-family: 'Shippori Mincho', serif; font-size: 1rem; font-weight: 800; color: var(--l3-navy); }
-        .accordion-content { max-height: 0; overflow: hidden; transition: all 0.4s ease-out; background: #fcfdfe; }
-        .accordion-inner { padding: 10px 25px 30px; font-size: 0.85rem; line-height: 1.8; opacity: 0.7; }
+        .accordion-trigger { width: 100%; padding: 22px 25px; display: flex; align-items: center; justify-content: space-between; background: none; border: none; cursor: pointer; }
+        .accordion-content { max-height: 0; overflow: hidden; transition: 0.4s; background: #fcfdfe; }
+        .feedback-area { width: 100%; min-height: 100px; border-radius: 15px; border: 1px solid #eee; padding: 15px; margin: 10px 0; outline: none; }
 
-        /* ナビゲーション */
-        .nav { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; background: #01162d; border-radius: 35px; display: flex; justify-content: space-around; padding: 22px 0; z-index: 2000; box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
-        .nav-item { color: #fff; opacity: 0.3; font-size: 9px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em; }
+        /* ナビ */
+        .nav { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; background: #01162d; border-radius: 35px; display: flex; justify-content: space-around; padding: 22px 0; z-index: 2000; }
+        .nav-item { color: #fff; opacity: 0.3; font-size: 9px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
         .nav-active { color: var(--l3-lime); opacity: 1; }
     </style>
 </head>
 <body>
-    <header class="header-logo"><img src="l3-logo-official.png" alt="L3 Logo" class="logo-img"></header>
+    <header class="header-logo"><img src="l3-logo-official.png" class="logo-img"></header>
 
     <main id="tab-mypage" class="container active">
         <div class="l3-card">
-            <span style="font-size: 0.65rem; opacity: 0.4; letter-spacing: 0.3em;">L3 OFFICIAL MEMBER</span>
+            <span style="font-size: 0.65rem; opacity: 0.4;">L3 OFFICIAL MEMBER</span>
             <h2 id="display-name" class="member-name">---</h2>
             <div class="hourglass-visual">
                 <svg viewBox="0 0 100 160" style="width:100%; height:100%;">
-                    <defs>
-                        <path id="glassShape" d="M5,10 L95,10 C95,10 90,50 55,80 C90,110 95,150 95,150 L5,150 C5,150 10,110 45,80 C10,50 5,10 5,10 Z" />
-                        <clipPath id="clip"><use href="#glassShape"/></clipPath>
-                    </defs>
-                    <use href="#glassShape" class="glass-frame" />
-                    <g clip-path="url(#clip)">
-                        <rect id="sand-top" class="sand-fill" x="0" y="10" width="100" height="70" />
-                        <rect id="sand-bottom" class="sand-fill" x="0" y="150" width="100" height="0" />
-                    </g>
+                    <defs><path id="glassShape" d="M5,10 L95,10 C95,10 90,50 55,80 C90,110 95,150 95,150 L5,150 C5,150 10,110 45,80 C10,50 5,10 5,10 Z" /><clipPath id="clip"><use href="#glassShape"/></clipPath></defs>
+                    <use href="#glassShape" class="glass-frame" /><g clip-path="url(#clip)"><rect id="sand-top" class="sand-fill" x="0" y="10" width="100" height="70" /><rect id="sand-bottom" class="sand-fill" x="0" y="150" width="100" height="0" /></g>
                 </svg>
             </div>
-            <div id="display-days" style="font-size: 2.2rem; font-weight: 800;">---<span style="font-size:0.8rem; margin-left:5px; opacity:0.4;">DAYS</span></div>
+            <div id="display-days" style="font-size: 2.2rem; font-weight: 800;">---</div>
         </div>
-
-        <button onclick="takeAttendance()" style="width:100%; padding:22px; background:var(--l3-navy); color:#fff; border-radius:24px; border:none; font-weight:800; font-size: 1.1rem; cursor:pointer;">📖 出席を記録する</button>
-
+        <button onclick="takeAttendance()" style="width:100%; padding:22px; background:var(--l3-navy); color:#fff; border-radius:24px; border:none; font-weight:800; cursor:pointer;">📖 出席登録</button>
         <div class="l3-card">
-            <h3 style="font-size: 0.9rem; letter-spacing: 0.2em;">運営へのご意見箱</h3>
-            <textarea id="feedback-text" class="feedback-area" placeholder="サークルへの要望や感想を自由に送ってください。"></textarea>
-            <button onclick="sendFeedback()" class="btn-send">メッセージを送信</button>
+            <h3 style="font-size: 0.8rem; letter-spacing: 0.1em;">運営へのご意見箱</h3>
+            <textarea id="feedback-text" class="feedback-area" placeholder="メッセージを入力..."></textarea>
+            <button onclick="sendFeedback()" style="width:100%; padding:12px; border-radius:12px; background:var(--l3-navy); color:#fff; border:none; font-weight:800;">送信</button>
         </div>
     </main>
 
@@ -99,7 +80,7 @@
     </nav>
 
     <script>
-        const GAS_URL = "★あなたの最新のGASのURL★";
+        const GAS_URL = "★最新のGASのURL★";
         const LIFF_ID = "2008760618-igOldYtb";
 
         async function initPortal() {
@@ -107,86 +88,45 @@
                 await liff.init({ liffId: LIFF_ID });
                 if (!liff.isLoggedIn()) { liff.login(); return; }
                 const profile = await liff.getProfile();
-                const surfaceId = new URLSearchParams(window.location.search).get('id');
-                const loginId = surfaceId || profile.userId;
+                const loginId = new URLSearchParams(window.location.search).get('id') || profile.userId;
 
                 const res = await fetch(`${GAS_URL}?id=${loginId}`);
                 const data = await res.json();
 
-                // MyPage 反映
                 document.getElementById('display-name').innerText = data.userName;
-                const diff = new Date(data.graduationDate) - new Date();
-                const days = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-                document.getElementById('display-days').innerHTML = `${days}<span style="font-size:0.8rem; margin-left:5px; opacity:0.4;">DAYS</span>`;
-                
-                const ratio = Math.max(0, Math.min(1, (1 - (days / 1095))));
-                gsap.to("#sand-top", { attr: { y: 10 + (70 * ratio), height: 70 * (1 - ratio) }, duration: 2.5, ease: "power2.out" });
-                gsap.to("#sand-bottom", { attr: { y: 150 - (70 * ratio), height: 70 * ratio }, duration: 2.5, ease: "power2.out" });
+                const days = Math.max(0, Math.ceil((new Date(data.graduationDate) - new Date()) / 86400000));
+                document.getElementById('display-days').innerText = days + " DAYS";
+                gsap.to("#sand-top", { attr: { y: 10 + (70 * (1 - days/1095)), height: 70 * (days/1095) }, duration: 2 });
+                gsap.to("#sand-bottom", { attr: { y: 150 - (70 * (1 - days/1095)), height: 70 * (1 - days/1095) }, duration: 2 });
 
-                // Member List 反映
                 document.getElementById('list-root').innerHTML = data.allMembers.map(m => `
                     <div class="m-card" onclick="toggleMember(this)">
                         <div class="m-icon">${m.photo ? `<img src="${m.photo}" class="m-img">` : `<img src="l3-logo-official.png" class="m-logo-small">`}</div>
-                        <span style="font-family:'Shippori Mincho',serif; font-weight:800; font-size:1rem; display:block;">${m.name}</span>
-                        <small style="opacity:0.3; font-size:0.6rem;">${m.term}期生</small>
-                        
+                        <span style="font-weight:800;">${m.name}</span><br><small style="opacity:0.3;">${m.term}期</small>
                         <div class="detail-pane">
                             <div class="d-item"><span class="d-label">Nickname</span><span class="d-val">${m.nickname}</span></div>
                             <div class="d-item"><span class="d-label">Experience</span><span class="d-val">${m.experience}</span></div>
                             <div class="d-item"><span class="d-label">Birth Year</span><span class="d-val">${m.birthYear}</span></div>
                             <div class="d-item"><span class="d-label">Hobbies</span><span class="d-val">${m.hobbies}</span></div>
-                            <div class="d-item d-full"><span class="d-label">Favorite Manga</span><span class="d-val">${m.manga}</span></div>
                         </div>
                     </div>`).join('');
 
-                // Info 反映
                 document.getElementById('info-root').innerHTML = data.infoData.map(i => `
-                    <div class="accordion-item">
-                        <button class="accordion-trigger" onclick="toggleAccordion(this)">
-                            <span class="accordion-label">${i.title}</span><span style="font-size:0.7rem; opacity:0.3;">▼</span>
-                        </button>
-                        <div class="accordion-content"><div class="accordion-inner">${i.content.replace(/\n/g,'<br>')}</div></div>
-                    </div>`).join('');
-
+                    <div class="accordion-item"><button class="accordion-trigger" onclick="toggleAccordion(this)"><b>${i.title}</b></button>
+                    <div class="accordion-content"><div style="padding:20px; opacity:0.7;">${i.content}</div></div></div>`).join('');
             } catch (e) { console.error(e); }
         }
 
-        function switchTab(tab) {
+        function switchTab(t) {
             document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('nav-active'));
-            document.getElementById('tab-' + tab).classList.add('active');
-            document.getElementById('nav-' + tab).classList.add('nav-active');
+            document.getElementById('tab-'+t).classList.add('active');
+            document.getElementById('nav-'+t).classList.add('nav-active');
         }
-
-        function toggleMember(el) {
-            const isExpanded = el.classList.contains('expanded');
-            document.querySelectorAll('.m-card').forEach(c => c.classList.remove('expanded'));
-            if (!isExpanded) el.classList.add('expanded');
-        }
-
-        function toggleAccordion(el) {
-            const content = el.nextElementSibling;
-            const isActive = el.parentElement.classList.contains('active');
-            document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
-            document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active'));
-            if (!isActive) { el.parentElement.classList.add('active'); content.style.maxHeight = content.scrollHeight + "px"; }
-        }
-
-        async function takeAttendance() {
-            const profile = await liff.getProfile();
-            await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "attendance", userId: profile.userId }) });
-            alert("本日の出席を記録しました！📖");
-        }
-
-        async function sendFeedback() {
-            const text = document.getElementById('feedback-text').value;
-            if (!text) return;
-            const profile = await liff.getProfile();
-            await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "feedback", userId: profile.userId, message: text }) });
-            alert("メッセージを送信しました。ありがとうございます！");
-            document.getElementById('feedback-text').value = "";
-        }
-
+        function toggleMember(el) { const ex = el.classList.contains('expanded'); document.querySelectorAll('.m-card').forEach(c=>c.classList.remove('expanded')); if(!ex) el.classList.add('expanded'); }
+        function toggleAccordion(el) { const c = el.nextElementSibling; c.style.maxHeight = c.style.maxHeight ? null : c.scrollHeight + "px"; }
+        async function takeAttendance() { const p = await liff.getProfile(); await fetch(GAS_URL, {method:"POST", body:JSON.stringify({action:"attendance", userId:p.userId})}); alert("出席記録完了！"); }
+        async function sendFeedback() { const t = document.getElementById('feedback-text').value; if(!t) return; const p = await liff.getProfile(); await fetch(GAS_URL, {method:"POST", body:JSON.stringify({action:"feedback", userId:p.userId, message:t})}); alert("送信しました！"); document.getElementById('feedback-text').value=""; }
         initPortal();
     </script>
 </body>
