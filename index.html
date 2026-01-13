@@ -8,20 +8,47 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
-        :root { --l3-navy: #002b5b; --l3-lime: #e1ff00; --bg-body: #f8fafd; }
-        body { font-family: 'Outfit', sans-serif; background: var(--bg-body); color: var(--l3-navy); margin: 0; padding-bottom: 120px; }
-        .header-logo { width: 100%; padding: 40px 0; display: flex; justify-content: center; background: #fff; margin-bottom: 20px; }
-        .logo-img { width: 160px; height: auto; }
-        .container { width: 92%; max-width: 400px; margin: 0 auto; display: none; flex-direction: column; gap: 20px; }
+        :root { --l3-navy: #002b5b; --l3-lime: #e1ff00; --bg-body: #f8fafd; --card-white: #ffffff; }
+        body { background: var(--bg-body); color: var(--l3-navy); font-family: 'Outfit', sans-serif; margin: 0; padding-bottom: 140px; -webkit-font-smoothing: antialiased; }
+        
+        /* Header */
+        .header-logo { width: 100%; padding: 50px 0 30px; display: flex; justify-content: center; background: #fff; margin-bottom: 25px; }
+        .logo-img { width: 180px; height: auto; object-fit: contain; }
+
+        .container { width: 92%; max-width: 400px; margin: 0 auto; display: none; flex-direction: column; gap: 25px; }
         .container.active { display: flex; }
-        .l3-card { background: #fff; border-radius: 30px; padding: 30px; box-shadow: 0 10px 40px rgba(0,43,91,0.05); text-align: center; }
-        .member-name { font-family: 'Shippori Mincho', serif; font-size: 2.2rem; margin: 10px 0; font-weight: 800; }
-        .nav { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: #002b5b; border-radius: 30px; display: flex; justify-content: space-around; padding: 18px 0; z-index: 1000; box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
-        .nav-item { color: #fff; opacity: 0.4; font-size: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em; }
-        .nav-active { color: var(--l3-lime); opacity: 1; }
+
+        /* Card System */
+        .l3-card { background: var(--card-white); border-radius: 40px; padding: 40px 30px; box-shadow: 0 20px 50px rgba(0, 43, 91, 0.04); text-align: center; position: relative; }
+        .member-name { font-family: 'Shippori Mincho', serif; font-size: 2.5rem; margin: 15px 0; font-weight: 800; letter-spacing: 0.1em; }
+
+        /* Hourglass Design */
+        .hourglass-visual { position: relative; width: 130px; height: 160px; margin: 30px auto; }
+        .glass-frame { fill: none; stroke: var(--l3-navy); stroke-width: 3; stroke-linecap: round; }
+        .sand-fill { fill: var(--l3-lime); }
+
+        /* Feedback Area */
+        .feedback-area { width: 100%; min-height: 120px; border-radius: 20px; border: 1px solid rgba(0, 43, 91, 0.1); background: #f9fafb; padding: 18px; font-family: inherit; font-size: 0.9rem; color: var(--l3-navy); resize: none; margin: 15px 0; outline: none; }
+        .btn-send { width: 100%; padding: 15px; border-radius: 15px; background: var(--l3-navy); color: #fff; border: none; font-weight: 800; cursor: pointer; }
+
+        /* List Design */
         .list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .m-card { background: #fff; border-radius: 20px; padding: 15px; text-align: center; border: 1px solid rgba(0,0,0,0.03); }
-        .m-name { font-family: 'Shippori Mincho', serif; font-size: 0.9rem; font-weight: 800; display: block; margin-top: 8px; }
+        .m-card { background: #fff; border-radius: 28px; padding: 20px 15px; text-align: center; border: 1px solid rgba(0,43,91,0.03); }
+        .m-icon { width: 60px; height: 60px; background: #f0f4f8; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .m-img { width: 100%; height: 100%; object-fit: cover; }
+        .m-logo-small { width: 35px; opacity: 0.3; } /* 写真がない時のロゴ */
+
+        /* Accordion Info */
+        .accordion-item { background: #fff; border-radius: 25px; margin-bottom: 12px; overflow: hidden; }
+        .accordion-trigger { width: 100%; padding: 22px 25px; display: flex; align-items: center; justify-content: space-between; background: none; border: none; cursor: pointer; text-align: left; }
+        .accordion-label { font-family: 'Shippori Mincho', serif; font-size: 1rem; font-weight: 800; color: var(--l3-navy); }
+        .accordion-content { max-height: 0; overflow: hidden; transition: all 0.4s ease-out; background: #fcfdfe; }
+        .accordion-inner { padding: 10px 25px 30px; font-size: 0.85rem; line-height: 1.8; opacity: 0.7; }
+
+        /* Nav */
+        .nav { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; background: #01162d; border-radius: 35px; display: flex; justify-content: space-around; padding: 22px 0; z-index: 2000; }
+        .nav-item { color: #fff; opacity: 0.3; font-size: 9px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em; }
+        .nav-active { color: var(--l3-lime); opacity: 1; }
     </style>
 </head>
 <body>
@@ -29,19 +56,41 @@
 
     <main id="tab-mypage" class="container active">
         <div class="l3-card">
-            <span style="font-size: 0.7rem; opacity: 0.5; letter-spacing: 0.2em;">WELCOME BACK</span>
-            <h2 id="display-name" class="member-name">Loading...</h2>
-            <p id="display-msg" style="opacity: 0.6;">会員ポータルへようこそ</p>
+            <span style="font-size: 0.65rem; opacity: 0.4; letter-spacing: 0.3em;">L3 OFFICIAL MEMBER</span>
+            <h2 id="display-name" class="member-name">---</h2>
+            
+            <div class="hourglass-visual">
+                <svg viewBox="0 0 100 160" style="width:100%; height:100%;">
+                    <defs>
+                        <path id="glassShape" d="M5,10 L95,10 C95,10 90,50 55,80 C90,110 95,150 95,150 L5,150 C5,150 10,110 45,80 C10,50 5,10 5,10 Z" />
+                        <clipPath id="clip"><use href="#glassShape"/></clipPath>
+                    </defs>
+                    <use href="#glassShape" class="glass-frame" />
+                    <g clip-path="url(#clip)">
+                        <rect id="sand-top" class="sand-fill" x="0" y="10" width="100" height="70" />
+                        <rect id="sand-bottom" class="sand-fill" x="0" y="150" width="100" height="0" />
+                    </g>
+                </svg>
+            </div>
+
+            <div id="display-days" style="font-size: 2.2rem; font-weight: 800;">---<span style="font-size:0.8rem; margin-left:5px; opacity:0.4;">DAYS</span></div>
         </div>
-        <button onclick="takeAttendance()" style="width:100%; padding:22px; background:var(--l3-navy); color:#fff; border-radius:20px; border:none; font-weight:800; font-size: 1rem; cursor:pointer;">📖 出席を記録する</button>
+
+        <button onclick="takeAttendance()" style="width:100%; padding:22px; background:var(--l3-navy); color:#fff; border-radius:24px; border:none; font-weight:800; font-size: 1.1rem; cursor:pointer;">📖 出席を記録する</button>
+
+        <div class="l3-card">
+            <h3 style="font-size: 0.9rem; letter-spacing: 0.2em;">運営へのご意見箱</h3>
+            <textarea id="feedback-text" class="feedback-area" placeholder="サークルへの要望や感想を自由に送ってください。"></textarea>
+            <button onclick="sendFeedback()" class="btn-send">メッセージを送信</button>
+        </div>
     </main>
 
     <main id="tab-list" class="container">
-        <div id="list-root" class="list-grid">読み込み中...</div>
+        <div id="list-root" class="list-grid"></div>
     </main>
 
     <main id="tab-info" class="container">
-        <div id="info-root">読み込み中...</div>
+        <div id="info-root"></div>
     </main>
 
     <nav class="nav">
@@ -51,50 +100,57 @@
     </nav>
 
     <script>
-        // --------------------------------------------------
-        // ここに取得した新しいGASのURLを貼り付けてください！
-        const GAS_URL = "https://script.google.com/macros/s/AKfycby21EhDYkN_Gjzad4ks8hsyquV61hhuI2VKylGAQwyYvpmvP1iZowqIaM6RdR64HVJeOA/exec";
+        const GAS_URL = "ここにあなたの新しいGASのURLを貼ってください";
         const LIFF_ID = "2008760618-igOldYtb";
-        // --------------------------------------------------
 
         async function initPortal() {
             try {
                 await liff.init({ liffId: LIFF_ID });
                 if (!liff.isLoggedIn()) { liff.login(); return; }
                 const profile = await liff.getProfile();
-                const urlParams = new URLSearchParams(window.location.search);
-                const surfaceId = urlParams.get('id');
-                
+                const surfaceId = new URLSearchParams(window.location.search).get('id');
                 const loginId = surfaceId || profile.userId;
 
                 const res = await fetch(`${GAS_URL}?id=${loginId}`);
                 const data = await res.json();
 
-                // MyPage反映
+                // MyPage: 名前と砂時計
                 document.getElementById('display-name').innerText = data.userName;
+                const diff = new Date(data.graduationDate) - new Date();
+                const days = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+                document.getElementById('display-days').innerHTML = `${days}<span style="font-size:0.8rem; margin-left:5px; opacity:0.4;">DAYS</span>`;
+                
+                // 砂時計アニメーション (3年=1095日)
+                const ratio = Math.max(0, Math.min(1, (1 - (days / 1095))));
+                gsap.to("#sand-top", { attr: { y: 10 + (70 * ratio), height: 70 * (1 - ratio) }, duration: 2.5, ease: "power2.out" });
+                gsap.to("#sand-bottom", { attr: { y: 150 - (70 * ratio), height: 70 * ratio }, duration: 2.5, ease: "power2.out" });
 
-                // List反映
+                // List: 写真がない時はL3ロゴを表示
                 document.getElementById('list-root').innerHTML = data.allMembers.map(m => `
                     <div class="m-card">
-                        <div style="width:50px; height:50px; background:#eee; border-radius:50%; margin:0 auto; overflow:hidden;">
-                            ${m.photo ? `<img src="${m.photo}" style="width:100%; height:100%; object-fit:cover;">` : ''}
+                        <div class="m-icon">
+                            ${m.photo ? `<img src="${m.photo}" class="m-img">` : `<img src="l3-logo-official1.jpg" class="m-logo-small">`}
                         </div>
                         <span class="m-name">${m.name}</span>
-                        <small style="opacity:0.4;">${m.term}期</small>
+                        <small style="opacity:0.3; font-size:0.6rem;">${m.term}期生</small>
                     </div>
                 `).join('');
 
-                // Info反映
+                // Info: アコーディオン形式
                 document.getElementById('info-root').innerHTML = data.infoData.map(i => `
-                    <div class="l3-card" style="text-align:left; margin-bottom:15px;">
-                        <h3 style="margin-top:0;">${i.title}</h3>
-                        <p style="font-size:0.9rem; opacity:0.8; line-height:1.6;">${i.content.replace(/\n/g,'<br>')}</p>
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(this)">
+                            <span class="accordion-label">${i.title}</span>
+                            <span style="font-size:0.7rem; opacity:0.3;">▼</span>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="accordion-inner">${i.content.replace(/\n/g,'<br>')}</div>
+                        </div>
                     </div>
                 `).join('');
 
             } catch (e) {
-                console.error("初期化エラー:", e);
-                alert("データの取得に失敗しました。URLを確認してください。");
+                console.error(e);
             }
         }
 
@@ -105,10 +161,30 @@
             document.getElementById('nav-' + tab).classList.add('nav-active');
         }
 
+        function toggleAccordion(el) {
+            const content = el.nextElementSibling;
+            const isActive = el.parentElement.classList.contains('active');
+            document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
+            document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active'));
+            if (!isActive) {
+                el.parentElement.classList.add('active');
+                content.style.maxHeight = content.scrollHeight + "px";
+            }
+        }
+
         async function takeAttendance() {
             const profile = await liff.getProfile();
             await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "attendance", userId: profile.userId }) });
             alert("本日の出席を記録しました！📖");
+        }
+
+        async function sendFeedback() {
+            const text = document.getElementById('feedback-text').value;
+            if (!text) return;
+            const profile = await liff.getProfile();
+            await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "feedback", userId: profile.userId, message: text }) });
+            alert("貴重なご意見ありがとうございます！運営に送信しました。");
+            document.getElementById('feedback-text').value = "";
         }
 
         initPortal();
