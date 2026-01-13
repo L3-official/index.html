@@ -51,7 +51,7 @@
     </style>
 </head>
 <body>
-    <header class="header-logo"><img src="l3-logo-official.png" class="logo-img"></header>
+    <header class="header-logo"><img src="l3-logo-official1.png" class="logo-img"></header>
 
     <main id="tab-mypage" class="container active">
         <div class="l3-card">
@@ -116,7 +116,7 @@
                 // List反映（G列：生まれ年、K列：ラケット）
                 document.getElementById('list-root').innerHTML = data.allMembers.map(m => `
                     <div class="m-card" onclick="toggleMember(this)">
-                        <div class="m-icon">${m.photo ? `<img src="${m.photo}" class="m-img">` : `<img src="l3-logo-official.png" class="m-logo-small">`}</div>
+                        <div class="m-icon">${m.photo ? `<img src="${m.photo}" class="m-img">` : `<img src="l3-logo-official1.png" class="m-logo-small">`}</div>
                         <span style="font-weight:800; font-family:'Shippori Mincho',serif;">${m.name}</span><br><small style="opacity:0.3;">${m.term}期</small>
                         <div class="detail-pane">
                             <div class="d-item"><span class="d-label">Nickname</span><span class="d-val">${m.nickname || "---"}</span></div>
