@@ -10,42 +10,27 @@
     <style>
         :root { --l3-navy: #002b5b; --l3-lime: #e1ff00; --bg-body: #f8fafd; --card-white: #ffffff; }
         body { background: var(--bg-body); color: var(--l3-navy); font-family: 'Outfit', sans-serif; margin: 0; padding-bottom: 140px; -webkit-font-smoothing: antialiased; }
-        
-        /* Header */
         .header-logo { width: 100%; padding: 50px 0 30px; display: flex; justify-content: center; background: #fff; margin-bottom: 25px; }
         .logo-img { width: 180px; height: auto; object-fit: contain; }
-
         .container { width: 92%; max-width: 400px; margin: 0 auto; display: none; flex-direction: column; gap: 25px; }
         .container.active { display: flex; }
-
-        /* Card System */
         .l3-card { background: var(--card-white); border-radius: 40px; padding: 40px 30px; box-shadow: 0 20px 50px rgba(0, 43, 91, 0.04); text-align: center; position: relative; }
         .member-name { font-family: 'Shippori Mincho', serif; font-size: 2.5rem; margin: 15px 0; font-weight: 800; letter-spacing: 0.1em; }
-
-        /* Hourglass Design */
         .hourglass-visual { position: relative; width: 130px; height: 160px; margin: 30px auto; }
         .glass-frame { fill: none; stroke: var(--l3-navy); stroke-width: 3; stroke-linecap: round; }
         .sand-fill { fill: var(--l3-lime); }
-
-        /* Feedback Area */
         .feedback-area { width: 100%; min-height: 120px; border-radius: 20px; border: 1px solid rgba(0, 43, 91, 0.1); background: #f9fafb; padding: 18px; font-family: inherit; font-size: 0.9rem; color: var(--l3-navy); resize: none; margin: 15px 0; outline: none; }
         .btn-send { width: 100%; padding: 15px; border-radius: 15px; background: var(--l3-navy); color: #fff; border: none; font-weight: 800; cursor: pointer; }
-
-        /* List Design */
         .list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .m-card { background: #fff; border-radius: 28px; padding: 20px 15px; text-align: center; border: 1px solid rgba(0,43,91,0.03); }
         .m-icon { width: 60px; height: 60px; background: #f0f4f8; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .m-img { width: 100%; height: 100%; object-fit: cover; }
-        .m-logo-small { width: 35px; opacity: 0.3; } /* 写真がない時のロゴ */
-
-        /* Accordion Info */
+        .m-logo-small { width: 35px; opacity: 0.3; }
         .accordion-item { background: #fff; border-radius: 25px; margin-bottom: 12px; overflow: hidden; }
         .accordion-trigger { width: 100%; padding: 22px 25px; display: flex; align-items: center; justify-content: space-between; background: none; border: none; cursor: pointer; text-align: left; }
         .accordion-label { font-family: 'Shippori Mincho', serif; font-size: 1rem; font-weight: 800; color: var(--l3-navy); }
         .accordion-content { max-height: 0; overflow: hidden; transition: all 0.4s ease-out; background: #fcfdfe; }
         .accordion-inner { padding: 10px 25px 30px; font-size: 0.85rem; line-height: 1.8; opacity: 0.7; }
-
-        /* Nav */
         .nav { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; background: #01162d; border-radius: 35px; display: flex; justify-content: space-around; padding: 22px 0; z-index: 2000; }
         .nav-item { color: #fff; opacity: 0.3; font-size: 9px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em; }
         .nav-active { color: var(--l3-lime); opacity: 1; }
@@ -58,7 +43,6 @@
         <div class="l3-card">
             <span style="font-size: 0.65rem; opacity: 0.4; letter-spacing: 0.3em;">L3 OFFICIAL MEMBER</span>
             <h2 id="display-name" class="member-name">---</h2>
-            
             <div class="hourglass-visual">
                 <svg viewBox="0 0 100 160" style="width:100%; height:100%;">
                     <defs>
@@ -72,12 +56,9 @@
                     </g>
                 </svg>
             </div>
-
             <div id="display-days" style="font-size: 2.2rem; font-weight: 800;">---<span style="font-size:0.8rem; margin-left:5px; opacity:0.4;">DAYS</span></div>
         </div>
-
         <button onclick="takeAttendance()" style="width:100%; padding:22px; background:var(--l3-navy); color:#fff; border-radius:24px; border:none; font-weight:800; font-size: 1.1rem; cursor:pointer;">📖 出席を記録する</button>
-
         <div class="l3-card">
             <h3 style="font-size: 0.9rem; letter-spacing: 0.2em;">運営へのご意見箱</h3>
             <textarea id="feedback-text" class="feedback-area" placeholder="サークルへの要望や感想を自由に送ってください。"></textarea>
@@ -85,13 +66,8 @@
         </div>
     </main>
 
-    <main id="tab-list" class="container">
-        <div id="list-root" class="list-grid"></div>
-    </main>
-
-    <main id="tab-info" class="container">
-        <div id="info-root"></div>
-    </main>
+    <main id="tab-list" class="container"><div id="list-root" class="list-grid"></div></main>
+    <main id="tab-info" class="container"><div id="info-root"></div></main>
 
     <nav class="nav">
         <div class="nav-item nav-active" id="nav-mypage" onclick="switchTab('mypage')">My Page</div>
@@ -100,8 +76,11 @@
     </nav>
 
     <script>
-        const GAS_URL = "https://script.google.com/macros/s/AKfycby21EhDYkN_Gjzad4ks8hsyquV61hhuI2VKylGAQwyYvpmvP1iZowqIaM6RdR64HVJeOA/exec";
+        // --------------------------------------------------
+        // ★ここにGASのURLを貼り直してください！
+        const GAS_URL = "あなたのGASのURL";
         const LIFF_ID = "2008760618-igOldYtb";
+        // --------------------------------------------------
 
         async function initPortal() {
             try {
@@ -114,44 +93,30 @@
                 const res = await fetch(`${GAS_URL}?id=${loginId}`);
                 const data = await res.json();
 
-                // MyPage: 名前と砂時計
                 document.getElementById('display-name').innerText = data.userName;
                 const diff = new Date(data.graduationDate) - new Date();
                 const days = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
                 document.getElementById('display-days').innerHTML = `${days}<span style="font-size:0.8rem; margin-left:5px; opacity:0.4;">DAYS</span>`;
                 
-                // 砂時計アニメーション (3年=1095日)
                 const ratio = Math.max(0, Math.min(1, (1 - (days / 1095))));
                 gsap.to("#sand-top", { attr: { y: 10 + (70 * ratio), height: 70 * (1 - ratio) }, duration: 2.5, ease: "power2.out" });
                 gsap.to("#sand-bottom", { attr: { y: 150 - (70 * ratio), height: 70 * ratio }, duration: 2.5, ease: "power2.out" });
 
-                // List: 写真がない時はL3ロゴを表示
                 document.getElementById('list-root').innerHTML = data.allMembers.map(m => `
                     <div class="m-card">
-                        <div class="m-icon">
-                            ${m.photo ? `<img src="${m.photo}" class="m-img">` : `<img src="l3-logo-official1.jpg" class="m-logo-small">`}
-                        </div>
+                        <div class="m-icon">${m.photo ? `<img src="${m.photo}" class="m-img">` : `<img src="l3-logo-official1.jpg" class="m-logo-small">`}</div>
                         <span class="m-name">${m.name}</span>
                         <small style="opacity:0.3; font-size:0.6rem;">${m.term}期生</small>
-                    </div>
-                `).join('');
+                    </div>`).join('');
 
-                // Info: アコーディオン形式
                 document.getElementById('info-root').innerHTML = data.infoData.map(i => `
                     <div class="accordion-item">
                         <button class="accordion-trigger" onclick="toggleAccordion(this)">
-                            <span class="accordion-label">${i.title}</span>
-                            <span style="font-size:0.7rem; opacity:0.3;">▼</span>
+                            <span class="accordion-label">${i.title}</span><span style="font-size:0.7rem; opacity:0.3;">▼</span>
                         </button>
-                        <div class="accordion-content">
-                            <div class="accordion-inner">${i.content.replace(/\n/g,'<br>')}</div>
-                        </div>
-                    </div>
-                `).join('');
-
-            } catch (e) {
-                console.error(e);
-            }
+                        <div class="accordion-content"><div class="accordion-inner">${i.content.replace(/\n/g,'<br>')}</div></div>
+                    </div>`).join('');
+            } catch (e) { console.error(e); }
         }
 
         function switchTab(tab) {
@@ -166,10 +131,7 @@
             const isActive = el.parentElement.classList.contains('active');
             document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
             document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active'));
-            if (!isActive) {
-                el.parentElement.classList.add('active');
-                content.style.maxHeight = content.scrollHeight + "px";
-            }
+            if (!isActive) { el.parentElement.classList.add('active'); content.style.maxHeight = content.scrollHeight + "px"; }
         }
 
         async function takeAttendance() {
@@ -183,10 +145,9 @@
             if (!text) return;
             const profile = await liff.getProfile();
             await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "feedback", userId: profile.userId, message: text }) });
-            alert("貴重なご意見ありがとうございます！運営に送信しました。");
+            alert("メッセージを送信しました。");
             document.getElementById('feedback-text').value = "";
         }
-
         initPortal();
     </script>
 </body>
