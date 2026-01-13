@@ -8,225 +8,110 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
-        /* デザイン設定 */
-        *, *::before, *::after { box-sizing: border-box; }
-        :root { --l3-navy: #002b5b; --l3-lime: #e1ff00; --bg-body: #f8fafd; --text-main: #002b5b; --card-white: #ffffff; }
-        body { background: var(--bg-body); color: var(--text-main); font-family: 'Outfit', sans-serif; margin: 0; padding-bottom: 140px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; -webkit-font-smoothing: antialiased; }
-        .header-logo { width: 100%; padding: 55px 0 35px; display: flex; justify-content: center; background: #fff; margin-bottom: 25px; }
-        .logo-img { width: 180px; height: auto; object-fit: contain; }
-        .container { width: 92%; max-width: 380px; display: none; flex-direction: column; gap: 28px; position: relative; }
+        :root { --l3-navy: #002b5b; --l3-lime: #e1ff00; --bg-body: #f8fafd; }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg-body); color: var(--l3-navy); margin: 0; padding-bottom: 120px; }
+        .header-logo { width: 100%; padding: 40px 0; display: flex; justify-content: center; background: #fff; margin-bottom: 20px; }
+        .logo-img { width: 160px; height: auto; }
+        .container { width: 92%; max-width: 400px; margin: 0 auto; display: none; flex-direction: column; gap: 20px; }
         .container.active { display: flex; }
-        .l3-card { background: var(--card-white); border-radius: 40px; padding: 40px 30px; box-shadow: 0 20px 50px rgba(0, 43, 91, 0.04); border: 1px solid rgba(0, 43, 91, 0.02); text-align: center; width: 100%; position: relative; }
-        
-        /* ボカシ設定 */
-        .lock-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); z-index: 100; display: none; align-items: center; justify-content: center; border-radius: 40px; }
-        .lock-msg { background: var(--l3-navy); color: #fff; padding: 15px 25px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.2em; }
-        .locked .lock-overlay { display: flex; }
-        .locked > *:not(.lock-overlay) { pointer-events: none; opacity: 0.3; }
-
-        .membership-card { border-top: 1px solid rgba(0, 43, 91, 0.1); }
-        .member-status { font-size: 0.65rem; letter-spacing: 0.4em; font-weight: 500; opacity: 0.4; margin-bottom: 20px; display: block; text-transform: uppercase; }
-        .member-name { font-family: 'Shippori Mincho', serif; font-size: 2.5rem; margin: 15px 0; font-weight: 800; letter-spacing: 0.15em; color: var(--l3-navy); line-height: 1.1; }
-        .hourglass-visual { position: relative; width: 130px; height: 160px; margin: 30px auto; }
-        .hourglass-svg { width: 100%; height: 100%; }
-        .glass-frame { fill: none; stroke: var(--l3-navy); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
-        .sand-fill { fill: var(--l3-lime); }
-        .remain-label { font-size: 0.65rem; font-weight: 500; opacity: 0.3; letter-spacing: 0.3em; margin-bottom: 5px; }
-        .remain-val { font-size: 2.6rem; color: var(--l3-navy); font-weight: 800; letter-spacing: -0.02em; }
-        .remain-unit { font-size: 0.8rem; font-weight: 500; opacity: 0.4; letter-spacing: 0.1em; margin-left: 5px;}
-        .btn-attendance { width: 100%; padding: 22px; border-radius: 24px; background: var(--l3-navy); color: #fff; font-weight: 800; font-size: 1.1rem; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; transition: transform 0.1s; }
-        .btn-attendance:active { transform: scale(0.96); }
-        .buddy-label { font-size: 0.7rem; font-weight: 800; opacity: 0.3; letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 15px; }
-        .buddy-name-display { font-family: 'Shippori Mincho', serif; font-size: 1.8rem; font-weight: 800; color: var(--l3-navy); margin-bottom: 20px; }
-        .stamp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 25px; }
-        .slot { aspect-ratio: 1/1; background: #f9fafb; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700; color: #dce3e9; border: 1px solid #f0f3f6; }
-        .slot.filled { background: var(--l3-navy); color: var(--l3-lime); border: none; }
-        .nav { position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; background: #01162d; border-radius: 35px; display: flex; justify-content: space-around; padding: 22px 0; box-shadow: 0 25px 60px rgba(0,0,0,0.2); z-index: 2000; }
-        .nav-item { color: rgba(255,255,255,0.25); text-align: center; font-size: 8px; font-weight: 800; text-decoration: none; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; }
+        .l3-card { background: #fff; border-radius: 30px; padding: 30px; box-shadow: 0 10px 40px rgba(0,43,91,0.05); text-align: center; }
+        .member-name { font-family: 'Shippori Mincho', serif; font-size: 2.2rem; margin: 10px 0; font-weight: 800; }
+        .nav { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: #002b5b; border-radius: 30px; display: flex; justify-content: space-around; padding: 18px 0; z-index: 1000; box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
+        .nav-item { color: #fff; opacity: 0.4; font-size: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em; }
         .nav-active { color: var(--l3-lime); opacity: 1; }
-        
-        /* Listスタイルの追加 */
-        .list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
-        .member-item { background: #fff; border-radius: 28px; padding: 20px 15px; border: 1px solid rgba(0,43,91,0.04); text-align: center; overflow: hidden; position: relative; }
-        .member-item.is-me { border: 2.5px solid var(--l3-navy); }
-        .member-item.expanded { grid-column: span 2; padding: 30px 20px; }
-        .m-icon { width: 60px; height: 60px; background: #f0f4f8; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; overflow: hidden; }
-        .m-photo { width: 100%; height: 100%; object-fit: cover; }
-        .m-name { font-family: 'Shippori Mincho', serif; font-size: 0.95rem; font-weight: 800; color: var(--l3-navy); display: block; }
-        .detail-pane { display: none; margin-top: 20px; text-align: left; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 20px; grid-template-columns: 1fr 1fr; gap: 20px 15px; }
-        .member-item.expanded .detail-pane { display: grid; }
-        .d-label { font-size: 0.55rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; }
-        .d-val { font-size: 0.85rem; color: var(--l3-navy); font-weight: 800; }
+        .list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .m-card { background: #fff; border-radius: 20px; padding: 15px; text-align: center; border: 1px solid rgba(0,0,0,0.03); }
+        .m-name { font-family: 'Shippori Mincho', serif; font-size: 0.9rem; font-weight: 800; display: block; margin-top: 8px; }
     </style>
 </head>
 <body>
-<header class="header-logo"><img src="l3-logo-official1.jpg" alt="L3 Logo" class="logo-img"></header>
+    <header class="header-logo"><img src="l3-logo-official1.jpg" alt="L3 Logo" class="logo-img"></header>
 
-<main class="container active" id="tab-mypage">
-    <div class="lock-overlay"><div class="lock-msg">会員限定コンテンツです</div></div>
-    <div class="l3-card membership-card">
-        <span class="member-status">L3 Official Member</span>
-        <h2 id="display-name" class="member-name">---</h2>
-        <div class="hourglass-visual">
-            <svg class="hourglass-svg" viewBox="0 0 100 160">
-                <defs>
-                    <path id="glassShape" d="M5,10 L95,10 C95,10 90,50 55,80 C90,110 95,150 95,150 L5,150 C5,150 10,110 45,80 C10,50 5,10 5,10 Z" />
-                    <clipPath id="globalClip"><use href="#glassShape"/></clipPath>
-                </defs>
-                <use href="#glassShape" class="glass-frame" />
-                <g clip-path="url(#globalClip)">
-                    <rect id="sand-top" class="sand-fill" x="5" y="10" width="90" height="0" />
-                    <rect id="sand-bottom" class="sand-fill" x="5" y="150" width="90" height="0" />
-                </g>
-            </svg>
+    <main id="tab-mypage" class="container active">
+        <div class="l3-card">
+            <span style="font-size: 0.7rem; opacity: 0.5; letter-spacing: 0.2em;">WELCOME BACK</span>
+            <h2 id="display-name" class="member-name">Loading...</h2>
+            <p id="display-msg" style="opacity: 0.6;">会員ポータルへようこそ</p>
         </div>
-        <div><div class="remain-label">REMAINING</div><div id="display-days" class="remain-val">---<span class="remain-unit">DAYS</span></div></div>
-    </div>
-    <button onclick="takeAttendance()" class="btn-attendance">📖 出席登録</button>
-    <div class="l3-card">
-        <div class="buddy-label">本日のバディ</div>
-        <div id="buddy-display" class="buddy-name-display">---</div>
-        <button id="btn-stamp" onclick="recordBuddyStamp()" style="display:none; margin-bottom:15px; width:100%; padding:16px; border-radius:16px; border:none; background:var(--l3-lime); color:var(--l3-navy); font-weight:800; cursor:pointer;">交流を記録する</button>
-        <div id="stamp-root" class="stamp-grid"></div>
-    </div>
-</main>
+        <button onclick="takeAttendance()" style="width:100%; padding:22px; background:var(--l3-navy); color:#fff; border-radius:20px; border:none; font-weight:800; font-size: 1rem; cursor:pointer;">📖 出席を記録する</button>
+    </main>
 
-<main class="container" id="tab-list">
-    <div class="lock-overlay"><div class="lock-msg">会員限定コンテンツです</div></div>
-    <div id="list-root" class="list-grid">
-        <p style="grid-column: span 2; text-align: center; opacity: 0.5; padding: 40px;">読み込み中...</p>
-    </div>
-</main>
+    <main id="tab-list" class="container">
+        <div id="list-root" class="list-grid">読み込み中...</div>
+    </main>
 
-<main class="container" id="tab-info">
-    <div id="info-accordion-root"></div>
-</main>
+    <main id="tab-info" class="container">
+        <div id="info-root">読み込み中...</div>
+    </main>
 
-<nav class="nav">
-    <div class="nav-item nav-active" id="nav-mypage" onclick="switchTab('mypage')">My Page</div>
-    <div class="nav-item" id="nav-list" onclick="switchTab('list')">List</div>
-    <div class="nav-item" id="nav-info" onclick="switchTab('info')">Info</div>
-</nav>
+    <nav class="nav">
+        <div class="nav-item nav-active" id="nav-mypage" onclick="switchTab('mypage')">My Page</div>
+        <div class="nav-item" id="nav-list" onclick="switchTab('list')">List</div>
+        <div class="nav-item" id="nav-info" onclick="switchTab('info')">Info</div>
+    </nav>
 
-<script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycby21EhDYkN_Gjzad4ks8hsyquV61hhuI2VKylGAQwyYvpmvP1iZowqIaM6RdR64HVJeOA/exec";
-    const LIFF_ID = "2008760618-igOldYtb"; 
-    let isListLoaded = false;
+    <script>
+        // --------------------------------------------------
+        // ここに取得した新しいGASのURLを貼り付けてください！
+        const GAS_URL = "ここに新しいGASのURLを貼る";
+        const LIFF_ID = "2008760618-igOldYtb";
+        // --------------------------------------------------
 
-    async function loadPortal() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const surfaceId = urlParams.get('id');
-        const liffProfile = await initLiff();
-        
-        // 紐付け確認用のloginId
-        const loginId = surfaceId || (liffProfile ? liffProfile.userId : 'guest');
-        window.currentUserId = loginId;
-
-        try {
-            const res = await fetch(`${GAS_URL}?id=${loginId}&mode=basic`);
-            const data = await res.json();
-            renderInfo(data.infoData);
-
-            if (data.status === "success") {
-                document.getElementById('tab-mypage').classList.remove('locked');
-                document.getElementById('tab-list').classList.remove('locked');
-                renderMyPage(data);
+        async function initPortal() {
+            try {
+                await liff.init({ liffId: LIFF_ID });
+                if (!liff.isLoggedIn()) { liff.login(); return; }
+                const profile = await liff.getProfile();
+                const urlParams = new URLSearchParams(window.location.search);
+                const surfaceId = urlParams.get('id');
                 
-                // N列への自動紐付け実行
-                if (surfaceId && liffProfile && !data.isLinked) {
-                    await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "link_real_id", surfaceId: surfaceId, realId: liffProfile.userId }) });
-                }
-            } else {
-                switchTab('info');
-            }
-        } catch (e) { console.error(e); switchTab('info'); }
-    }
+                const loginId = surfaceId || profile.userId;
 
-    async function initLiff() {
-        try {
-            await liff.init({ liffId: LIFF_ID });
-            if (!liff.isLoggedIn()) { liff.login(); return null; }
-            return await liff.getProfile();
-        } catch (e) { return null; }
-    }
+                const res = await fetch(`${GAS_URL}?id=${loginId}`);
+                const data = await res.json();
 
-    function renderMyPage(data) {
-        document.getElementById('display-name').innerText = data.userName;
-        const diff = new Date(data.graduationDate) - new Date();
-        const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-        document.getElementById('display-days').innerHTML = `${days}<span class="remain-unit">DAYS</span>`;
-        const ratio = Math.max(0, Math.min(1, (1 - (days / 1095))));
-        gsap.to("#sand-top", { attr: { y: 10 + (70 * ratio), height: 70 * (1 - ratio) }, duration: 2.5 });
-        gsap.to("#sand-bottom", { attr: { y: 150 - (70 * ratio), height: 70 * ratio }, duration: 2.5 });
+                // MyPage反映
+                document.getElementById('display-name').innerText = data.userName;
 
-        if (data.buddyName) {
-            document.getElementById('buddy-display').innerText = data.buddyName;
-            document.getElementById('btn-stamp').style.display = 'block';
-            window.currentBuddyId = data.buddyId;
-        }
-        // スタンプ枠の描画
-        const stampRoot = document.getElementById('stamp-root');
-        stampRoot.innerHTML = Array(8).fill(0).map((_, i) => `<div class="slot ${i < (data.stamps || 0) ? 'filled' : ''}">${i < (data.stamps || 0) ? '✔' : i+1}</div>`).join('');
-    }
-
-    async function loadFullMemberList() {
-        if (isListLoaded || !window.currentUserId) return;
-        const res = await fetch(`${GAS_URL}?id=${window.currentUserId}&mode=full`);
-        const data = await res.json();
-        if (data.allMembers) {
-            const root = document.getElementById('list-root');
-            root.innerHTML = data.allMembers.map(m => `
-                <div class="member-item ${m.id === window.currentUserId || m.realId === window.currentUserId ? 'is-me' : ''}" onclick="toggleMember(this)">
-                    <div class="m-icon">${m.photo ? `<img src="${m.photo}" class="m-photo">` : m.name.substring(0,1)}</div>
-                    <span class="m-name">${m.name}</span>
-                    <div class="detail-pane">
-                        <div class="d-item"><span class="d-label">Experience</span><span class="d-val">${m.experience || "---"}</span></div>
-                        <div class="d-item"><span class="d-label">Hobbies</span><span class="d-val">${m.hobbies || "---"}</span></div>
+                // List反映
+                document.getElementById('list-root').innerHTML = data.allMembers.map(m => `
+                    <div class="m-card">
+                        <div style="width:50px; height:50px; background:#eee; border-radius:50%; margin:0 auto; overflow:hidden;">
+                            ${m.photo ? `<img src="${m.photo}" style="width:100%; height:100%; object-fit:cover;">` : ''}
+                        </div>
+                        <span class="m-name">${m.name}</span>
+                        <small style="opacity:0.4;">${m.term}期</small>
                     </div>
-                </div>`).join('');
-            isListLoaded = true;
+                `).join('');
+
+                // Info反映
+                document.getElementById('info-root').innerHTML = data.infoData.map(i => `
+                    <div class="l3-card" style="text-align:left; margin-bottom:15px;">
+                        <h3 style="margin-top:0;">${i.title}</h3>
+                        <p style="font-size:0.9rem; opacity:0.8; line-height:1.6;">${i.content.replace(/\n/g,'<br>')}</p>
+                    </div>
+                `).join('');
+
+            } catch (e) {
+                console.error("初期化エラー:", e);
+                alert("データの取得に失敗しました。URLを確認してください。");
+            }
         }
-    }
 
-    function switchTab(tab) {
-        if (tab === 'list') loadFullMemberList();
-        document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('nav-active'));
-        document.getElementById('tab-' + tab).classList.add('active');
-        document.getElementById('nav-' + tab).classList.add('nav-active');
-    }
+        function switchTab(tab) {
+            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('nav-active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('nav-' + tab).classList.add('nav-active');
+        }
 
-    function renderInfo(infoData) {
-        const infoRoot = document.getElementById('info-accordion-root');
-        if(!infoData) return;
-        infoRoot.innerHTML = infoData.map(item => `
-            <div class="accordion-item">
-                <button class="accordion-trigger" onclick="toggleAccordion(this)">
-                    <span class="accordion-label">${item.title}</span>
-                </button>
-                <div class="accordion-content"><div class="accordion-inner">${item.content.replace(/\n/g,'<br>')}</div></div>
-            </div>`).join('');
-    }
+        async function takeAttendance() {
+            const profile = await liff.getProfile();
+            await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "attendance", userId: profile.userId }) });
+            alert("本日の出席を記録しました！📖");
+        }
 
-    function toggleAccordion(el) {
-        const content = el.nextElementSibling;
-        content.style.maxHeight = content.style.maxHeight ? null : content.scrollHeight + "px";
-    }
-
-    function toggleMember(el) { el.classList.toggle('expanded'); }
-
-    async function takeAttendance() {
-        await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "attendance", userId: window.currentUserId }) });
-        alert("出席を記録しました！");
-    }
-
-    async function recordBuddyStamp() {
-        await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "stamp", userId: window.currentUserId, buddyId: window.currentBuddyId }) });
-        alert("バディ交流を記録しました！");
-        location.reload();
-    }
-
-    loadPortal();
-</script>
+        initPortal();
+    </script>
 </body>
 </html>
