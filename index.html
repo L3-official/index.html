@@ -14,8 +14,14 @@
         .container { width: 92%; max-width: 400px; margin: 20px auto; display: none; flex-direction: column; gap: 15px; }
         .container.active { display: flex; }
         .l3-card { background: #fff; border-radius: 35px; padding: 25px; box-shadow: 0 10px 30px rgba(0,43,91,0.03); text-align: center; }
-        .member-name { font-family: 'Shippori Mincho', serif; font-size: 2.2rem; margin: 10px 0; font-weight: 800; }
+        .member-name { font-family: 'Shippori Mincho', serif; font-size: 2.2rem; margin: 10px 0 5px; font-weight: 800; }
         
+        /* --- 1. 砂時計のスタイル --- */
+        .hourglass-wrapper { margin: 10px 0; display: flex; justify-content: center; }
+        .hg-svg { width: 60px; height: auto; }
+        .sand-stream { stroke: var(--l3-lime); stroke-width: 2; stroke-dasharray: 4; animation: flow 1s linear infinite; }
+        @keyframes flow { from { stroke-dashoffset: 8; } to { stroke-dashoffset: 0; } }
+
         /* ボタン */
         .btn-main { width: 100%; padding: 20px; border-radius: 20px; border: none; font-weight: 800; font-size: 1rem; cursor: pointer; color: #fff; transition: 0.3s; }
         .btn-attend { background: var(--l3-navy); }
@@ -26,7 +32,7 @@
         .slot { aspect-ratio: 1/1; background: #f0f4f8; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; color: #d0d7de; }
         .slot.filled { background: var(--l3-navy); color: var(--l3-lime); }
 
-        /* プロフィール垂直レイアウト */
+        /* プロフィール */
         .list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .m-card { background: #fff; border-radius: 25px; padding: 15px; text-align: center; border: 1px solid rgba(0,43,91,0.02); cursor: pointer; }
         .m-card.expanded { grid-column: span 2; padding: 25px; }
@@ -34,16 +40,19 @@
         .m-img { width: 100%; height: 100%; object-fit: cover; }
         
         .detail-pane { display: none; margin-top: 15px; text-align: left; border-top: 1px solid #f0f4f8; padding-top: 15px; }
-        .m-card.expanded .detail-pane { display: block; } /* 垂直表示に変更 */
+        .m-card.expanded .detail-pane { display: block; }
         .d-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f9fafb; }
         .d-label { font-size: 0.6rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; }
         .d-val { font-size: 0.8rem; font-weight: 800; }
 
-        /* アコーディオン復活 */
-        .accordion-item { background: #fff; border-radius: 20px; margin-bottom: 10px; overflow: hidden; }
-        .accordion-trigger { width: 100%; padding: 20px; display: flex; justify-content: space-between; background: none; border: none; font-weight: 800; color: var(--l3-navy); text-align: left; cursor: pointer; }
-        .accordion-content { max-height: 0; overflow: hidden; transition: 0.3s ease-out; background: #fcfdfe; }
-        .accordion-inner { padding: 0 20px 20px; font-size: 0.8rem; line-height: 1.6; opacity: 0.8; }
+        /* --- 3. アコーディオンのサイズ調整 (1.5倍) --- */
+        .accordion-item { background: #fff; border-radius: 25px; margin-bottom: 15px; overflow: hidden; border: 1px solid #eee; }
+        .accordion-trigger { width: 100%; padding: 28px 25px; display: flex; justify-content: space-between; background: none; border: none; font-weight: 800; font-size: 1.2rem; color: var(--l3-navy); text-align: left; cursor: pointer; }
+        .accordion-content { max-height: 0; overflow: hidden; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: #fcfdfe; }
+        .accordion-inner { padding: 5px 25px 30px; font-size: 1.1rem; line-height: 1.8; color: #444; }
+        
+        /* リンクの有効化用スタイル */
+        .accordion-inner a { color: #0066cc; text-decoration: underline; font-weight: 800; }
 
         .feedback-area { width: 100%; min-height: 80px; border-radius: 15px; border: 1px solid #eee; padding: 12px; margin: 10px 0; outline: none; font-family: inherit; font-size: 0.8rem; }
         .nav { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 380px; background: #01162d; border-radius: 30px; display: flex; justify-content: space-around; padding: 18px 0; z-index: 2000; }
@@ -53,10 +62,14 @@
 </head>
 <body>
     <header class="header-logo"><img src="l3-logo-official_transparent.png" class="logo-img" loading="lazy"></header>
+    
     <main id="tab-mypage" class="container active">
         <div class="l3-card">
             <span style="font-size: 0.6rem; opacity: 0.3; letter-spacing: 0.2em;">OFFICIAL MEMBER</span>
             <h2 id="display-name" class="member-name">---</h2>
+            
+            <div id="hourglass-root" class="hourglass-wrapper"></div>
+            
             <div id="display-days" style="font-size: 1.8rem; font-weight: 800;">---</div>
         </div>
         <button id="btn-attendance" class="btn-main">Loading...</button>
@@ -71,17 +84,45 @@
             <button onclick="sendFeedback()" style="width:100%; padding:10px; border-radius:10px; background:var(--l3-navy); color:#fff; border:none; font-weight:800;">SEND</button>
         </div>
     </main>
+
     <main id="tab-list" class="container"><div id="list-root" class="list-grid"></div></main>
     <main id="tab-info" class="container"><div id="info-root"></div></main>
+
     <nav class="nav">
         <div class="nav-item nav-active" id="nav-mypage" onclick="switchTab('mypage')">My Page</div>
         <div class="nav-item" id="nav-list" onclick="switchTab('list')">List</div>
         <div class="nav-item" id="nav-info" onclick="switchTab('info')">Info</div>
     </nav>
+
     <script>
         const GAS_URL = "https://script.google.com/macros/s/AKfycby21EhDYkN_Gjzad4ks8hsyquV61hhuI2VKylGAQwyYvpmvP1iZowqIaM6RdR64HVJeOA/exec";
         const LIFF_ID = "2008760618-igOldYtb";
         let memberCache = null;
+
+        // --- URLをリンクに変換する関数 ---
+        function linkify(text) {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.replace(/\n/g, '<br>').replace(urlRegex, function(url) {
+                return '<a href="' + url + '" target="_blank">' + url + '</a>';
+            });
+        }
+
+        // --- 砂時計を描画する関数 (残り日数で砂の量が変わる) ---
+        function drawHourglass(remainingDays) {
+            const totalDays = 1095; // 3年
+            const ratio = Math.min(1, Math.max(0, remainingDays / totalDays));
+            const topHeight = 20 * ratio; // 砂の高さ(最大20)
+            const bottomHeight = 20 * (1 - ratio);
+            
+            const svg = `
+            <svg class="hg-svg" viewBox="0 0 40 50">
+                <path d="M5 5 L35 5 L22 25 L35 45 L5 45 L18 25 Z" fill="none" stroke="#002b5b" stroke-width="2"/>
+                <rect x="19.5" y="24" width="1" height="22" class="sand-stream" />
+                <path d="M20 25 L${20-15*ratio} ${25-topHeight} L${20+15*ratio} ${25-topHeight} Z" fill="#e1ff00" />
+                <rect x="${20-15*(1-ratio)}" y="${45-bottomHeight}" width="${30*(1-ratio)}" height="${bottomHeight}" fill="#e1ff00" />
+            </svg>`;
+            document.getElementById('hourglass-root').innerHTML = svg;
+        }
 
         async function initPortal() {
             try {
@@ -94,15 +135,32 @@
 
                 updateAttendanceButton(data.hasAttendedToday, profile.userId);
                 document.getElementById('display-name').innerText = data.userName;
-                document.getElementById('display-days').innerText = Math.max(0, Math.ceil((new Date(data.graduationDate) - new Date()) / 86400000)) + " DAYS";
+                
+                const days = Math.max(0, Math.ceil((new Date(data.graduationDate) - new Date()) / 86400000));
+                document.getElementById('display-days').innerText = days + " DAYS";
+                
+                // 砂時計描画
+                drawHourglass(days);
+
                 document.getElementById('buddy-name').innerText = data.buddyName;
                 document.getElementById('stamp-root').innerHTML = Array(8).fill(0).map((_, i) => `<div class="slot ${i < data.stamps ? 'filled' : ''}">${i < data.stamps ? '✔' : i + 1}</div>`).join('');
 
                 renderList(memberCache);
-                document.getElementById('info-root').innerHTML = data.infoData.map(i => `<div class="accordion-item"><button class="accordion-trigger" onclick="toggleAccordion(this)">${i.title}<span>▼</span></button><div class="accordion-content"><div class="accordion-inner">${i.content.replace(/\n/g, '<br>')}</div></div></div>`).join('');
+                
+                // --- 2&3. URL有効化とアコーディオン描画 ---
+                document.getElementById('info-root').innerHTML = data.infoData.map(i => `
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" onclick="toggleAccordion(this)">
+                            ${i.title}<span>▼</span>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="accordion-inner">${linkify(i.content)}</div>
+                        </div>
+                    </div>`).join('');
             } catch (e) { console.error(e); }
         }
 
+        // (その他の関数は既存通り)
         function renderList(members) {
             document.getElementById('list-root').innerHTML = members.map(m => `
                 <div class="m-card" onclick="toggleMember(this)">
