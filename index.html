@@ -66,7 +66,7 @@
         .accordion-item.active span { transform: rotate(180deg); opacity: 1; color: var(--l3-orange); }
         .accordion-content { max-height: 0; overflow: hidden; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: #fff; }
         .accordion-inner { padding: 4px 19px 22px; font-size: 0.825rem; line-height: 1.8; color: #4b5563; }
-        .accordion-inner a { color: #0066cc; text-decoration: underline; font-weight: 800; }
+        .accordion-inner a { color: #0066cc; text-decoration: underline; font-weight: 800; word-break: break-all; }
 
         /* ご意見箱エリア */
         .feedback-area { width: 100%; min-height: 80px; border-radius: 15px; border: 1px solid #f0f4f8; padding: 12px; margin: 10px 0; outline: none; font-family: inherit; font-size: 0.8rem; background: #fafbfc; box-sizing: border-box; }
@@ -138,8 +138,10 @@
         let currentStamps = 0;
         let buddyNameChar = '';
 
+        // URLリンク化関数の修正
         function linkify(text) {
-            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            // httpから始まり、スペース、改行、全角スペース、または日本語特有の区切り文字以外の文字を抽出
+            const urlRegex = /(https?:\/\/[^\s　\n\r]+)/g;
             return text.replace(/\n/g, '<br>').replace(urlRegex, function(url) {
                 return '<a href="' + url + '" target="_blank">' + url + '</a>';
             });
@@ -188,12 +190,11 @@
                 buddyNameChar = data.buddyName ? data.buddyName.charAt(0) : '✔';
                 renderStamps(currentStamps, buddyNameChar);
 
-                // LISTの描画
                 if(data.allMembers) {
                     renderList(data.allMembers);
                 }
 
-                // INFOの描画
+                // INFOの描画（リンク化処理を適用）
                 document.getElementById('info-root').innerHTML = data.infoData.map(i => `
                     <div class="accordion-item">
                         <button class="accordion-trigger" onclick="toggleAccordion(this)">
