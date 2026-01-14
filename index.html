@@ -12,7 +12,6 @@
             --l3-lime: #e1ff00; 
             --bg-body: #f8fafd; 
             --l3-orange: #d9822b;
-            /* 砂時計用変数 */
             --sand-duration: 100s; 
             --sand-delay: 0s;      
         }
@@ -21,10 +20,10 @@
         .logo-img { width: 160px; height: auto; }
         .container { width: 92%; max-width: 400px; margin: 20px auto; display: none; flex-direction: column; gap: 15px; }
         .container.active { display: flex; }
-        .l3-card { background: #fff; border-radius: 35px; padding: 25px; box-shadow: 0 10px 30px rgba(0,43,91,0.03); text-align: center; }
+        .l3-card { background: #fff; border-radius: 35px; padding: 25px; box-shadow: 0 10px 30px rgba(0,43,91,0.03); text-align: center; position: relative; }
         .member-name { font-family: 'Shippori Mincho', serif; font-size: 2.2rem; margin: 10px 0 5px; font-weight: 800; }
         
-        /* 砂時計スタイル */
+        /* 砂時計 */
         .hourglass-wrapper { margin: 10px 0; text-align: center; }
         .hourglass-svg { width: 100px; height: 130px; filter: drop-shadow(0 5px 15px rgba(0,43,91,0.1)); }
         .glass-frame { fill: rgba(0, 43, 91, 0.03); stroke: var(--l3-navy); stroke-width: 2; }
@@ -46,9 +45,13 @@
         .slot { aspect-ratio: 1/1; background: #f0f4f8; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; color: #d0d7de; }
         .slot.filled { background: var(--l3-navy); color: var(--l3-lime); font-family: 'Shippori Mincho', serif; font-size: 1.2rem; }
 
+        /* 検索バー */
+        .search-container { width: 100%; margin-bottom: 10px; }
+        .search-input { width: 100%; padding: 12px 20px; border-radius: 15px; border: 1px solid #f0f4f8; outline: none; font-family: inherit; font-size: 0.9rem; background: #fff; box-shadow: 0 4px 12px rgba(0,43,91,0.02); box-sizing: border-box; }
+
         /* LISTデザイン */
         .list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .m-card { background: #fff; border-radius: 25px; padding: 15px; text-align: center; border: 1px solid rgba(0,43,91,0.02); cursor: pointer; box-shadow: 0 4px 12px rgba(0,43,91,0.02); transition: 0.3s; }
+        .m-card { background: #fff; border-radius: 25px; padding: 15px; text-align: center; border: 1px solid rgba(0,43,91,0.02); cursor: pointer; box-shadow: 0 4px 12px rgba(0,43,91,0.02); transition: 0.3s; position: relative; }
         .m-card.expanded { grid-column: span 2; padding: 25px; }
         .m-icon { width: 55px; height: 55px; background: #f0f4f8; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .m-img { width: 100%; height: 100%; object-fit: cover; }
@@ -58,26 +61,27 @@
         .d-label { font-size: 0.6rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; }
         .d-val { font-size: 0.8rem; font-weight: 800; }
 
-        /* スタイリッシュInfoアコーディオン (0.75倍) */
-        .accordion-item { background: #fff; border-radius: 20px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,43,91,0.04); border: none; }
-        .accordion-trigger { width: 100%; padding: 21px 19px; display: flex; justify-content: space-between; align-items: center; background: none; border: none; font-weight: 800; font-size: 0.9rem; color: var(--l3-navy); text-align: left; cursor: pointer; transition: background 0.3s; }
-        .accordion-trigger:active { background: #f8fafd; }
-        .accordion-trigger span { font-size: 0.6rem; transition: transform 0.3s; opacity: 0.3; }
+        /* 編集ボタン & フォーム */
+        .edit-btn { position: absolute; top: 15px; right: 15px; font-size: 0.6rem; background: var(--l3-lime); color: var(--l3-navy); padding: 5px 10px; border-radius: 8px; font-weight: 800; border: none; cursor: pointer; }
+        .edit-input { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #eee; font-size: 0.8rem; font-weight: 800; margin-bottom: 5px; }
+
+        /* アコーディオン (0.75倍) */
+        .accordion-item { background: #fff; border-radius: 20px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,43,91,0.04); }
+        .accordion-trigger { width: 100%; padding: 21px 19px; display: flex; justify-content: space-between; align-items: center; background: none; border: none; font-weight: 800; font-size: 0.9rem; color: var(--l3-navy); text-align: left; cursor: pointer; transition: 0.3s; }
+        .accordion-trigger span { font-size: 0.6rem; transition: 0.3s; opacity: 0.3; }
         .accordion-item.active span { transform: rotate(180deg); opacity: 1; color: var(--l3-orange); }
         .accordion-content { max-height: 0; overflow: hidden; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: #fff; }
         .accordion-inner { padding: 4px 19px 22px; font-size: 0.825rem; line-height: 1.8; color: #4b5563; }
         .accordion-inner a { color: #0066cc; text-decoration: underline; font-weight: 800; word-break: break-all; }
 
-        /* ご意見箱エリア */
         .feedback-area { width: 100%; min-height: 80px; border-radius: 15px; border: 1px solid #f0f4f8; padding: 12px; margin: 10px 0; outline: none; font-family: inherit; font-size: 0.8rem; background: #fafbfc; box-sizing: border-box; }
-        
         .nav { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 380px; background: #01162d; border-radius: 30px; display: flex; justify-content: space-around; padding: 18px 0; z-index: 2000; }
         .nav-item { color: #fff; opacity: 0.3; font-size: 8px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
         .nav-active { color: var(--l3-lime); opacity: 1; }
     </style>
 </head>
 <body>
-    <header class="header-logo"><img src="l3-logo-official_transparent.png" class="logo-img" loading="lazy"></header>
+    <header class="header-logo"><img src="l3-logo-official_transparent.png" class="logo-img"></header>
     
     <main id="tab-mypage" class="container active">
         <div class="l3-card">
@@ -104,25 +108,26 @@
             <div id="display-days" style="font-size: 2.5rem; font-weight: 800; line-height: 1;">---</div>
             <span style="font-size: 0.8rem; font-weight: 800;">DAYS</span>
         </div>
-
         <button id="btn-attendance" class="btn-main">Loading...</button>
-
         <div class="l3-card">
             <div style="font-size:0.6rem; opacity:0.3; font-weight:800; letter-spacing: 0.1em;">本日のお相手</div>
             <div id="buddy-name" style="font-family:'Shippori Mincho',serif; font-size:1.8rem; font-weight:800; margin:5px 0 20px;">---</div>
             <button onclick="recordBuddyInteraction()" class="btn-main" style="background:var(--l3-lime); color:var(--l3-navy); margin-bottom: 20px;">交流を記録する</button>
-            <div style="font-size:0.6rem; opacity:0.3; font-weight:800; letter-spacing: 0.1em;">BUDDY COLLECTION</div>
             <div id="stamp-root" class="stamp-grid"></div>
         </div>
-
         <div class="l3-card">
-            <h3 style="font-size: 0.7rem; letter-spacing: 0.1em; margin: 0; opacity: 0.4;">運営へのご意見箱</h3>
+            <h3 style="font-size: 0.7rem; opacity: 0.4;">運営へのご意見箱</h3>
             <textarea id="feedback-text" class="feedback-area" placeholder="要望やメッセージを入力してください..."></textarea>
-            <button onclick="sendFeedback()" style="width:100%; padding:14px; border-radius:15px; background:var(--l3-navy); color:#fff; border:none; font-weight:800; cursor:pointer;">送信する</button>
+            <button onclick="sendFeedback()" style="width:100%; padding:14px; border-radius:15px; background:var(--l3-navy); color:#fff; border:none; font-weight:800;">送信する</button>
         </div>
     </main>
 
-    <main id="tab-list" class="container"><div id="list-root" class="list-grid"></div></main>
+    <main id="tab-list" class="container">
+        <div class="search-container">
+            <input type="text" id="member-search" class="search-input" placeholder="メンバーを検索 (名前, 趣味, ラケット...)" oninput="filterMembers()">
+        </div>
+        <div id="list-root" class="list-grid"></div>
+    </main>
 
     <main id="tab-info" class="container"><div id="info-root"></div></main>
 
@@ -137,14 +142,24 @@
         const LIFF_ID = "2008760618-igOldYtb";
         let currentStamps = 0;
         let buddyNameChar = '';
+        let globalMembers = [];
+        let myId = "";
+        let currentBuddyId = "";
 
-        // URLリンク化関数の修正
+        // URLリンク化 (アクセスの複数URL認識 & JoinUs専用処理)
         function linkify(text) {
-            // httpから始まり、スペース、改行、全角スペース、または日本語特有の区切り文字以外の文字を抽出
+            // JoinUs用
+            if (text.includes("エントリーフォーム")) {
+                const urlRegex = /(https?:\/\/[^\s　\n\r]+)/;
+                const match = text.match(urlRegex);
+                if (match) {
+                    const cleanText = text.replace(match[0], "").trim();
+                    return `${cleanText}<br><a href="${match[0]}" target="_blank" style="color:var(--l3-orange); font-weight:800;">【L3 エントリーフォームはこちら】</a>`;
+                }
+            }
+            // 通常URLリンク
             const urlRegex = /(https?:\/\/[^\s　\n\r]+)/g;
-            return text.replace(/\n/g, '<br>').replace(urlRegex, function(url) {
-                return '<a href="' + url + '" target="_blank">' + url + '</a>';
-            });
+            return text.replace(/\n/g, '<br>').replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`);
         }
 
         function updateHourglass(startDateStr, endDateStr) {
@@ -154,9 +169,8 @@
             const totalDuration = (end - start) / 1000;
             const elapsed = (now - start) / 1000;
             if (totalDuration <= 0) return;
-            const root = document.documentElement;
-            root.style.setProperty('--sand-duration', `${totalDuration}s`);
-            root.style.setProperty('--sand-delay', `-${elapsed}s`);
+            document.documentElement.style.setProperty('--sand-duration', `${totalDuration}s`);
+            document.documentElement.style.setProperty('--sand-delay', `-${elapsed}s`);
             const sandItems = document.querySelectorAll('.sand-animation');
             const stream = document.getElementById('sand-stream');
             const displayDays = document.getElementById('display-days');
@@ -170,8 +184,7 @@
             } else {
                 sandItems.forEach(el => el.style.animationPlayState = 'running');
                 stream.style.opacity = '1';
-                const remaining = Math.max(0, Math.ceil((end - now) / 86400000));
-                displayDays.innerText = remaining;
+                displayDays.innerText = Math.max(0, Math.ceil((end - now) / 86400000));
             }
         }
 
@@ -183,6 +196,8 @@
                 const res = await fetch(`${GAS_URL}?id=${profile.userId}`);
                 const data = await res.json();
 
+                myId = data.myId;
+                currentBuddyId = data.buddyId;
                 document.getElementById('display-name').innerText = data.userName;
                 updateHourglass(data.joinDate, data.graduationDate);
                 document.getElementById('buddy-name').innerText = data.buddyName || "---";
@@ -191,18 +206,14 @@
                 renderStamps(currentStamps, buddyNameChar);
 
                 if(data.allMembers) {
-                    renderList(data.allMembers);
+                    globalMembers = data.allMembers;
+                    renderList(globalMembers);
                 }
 
-                // INFOの描画（リンク化処理を適用）
                 document.getElementById('info-root').innerHTML = data.infoData.map(i => `
                     <div class="accordion-item">
-                        <button class="accordion-trigger" onclick="toggleAccordion(this)">
-                            ${i.title}<span>▼</span>
-                        </button>
-                        <div class="accordion-content">
-                            <div class="accordion-inner">${linkify(i.content)}</div>
-                        </div>
+                        <button class="accordion-trigger" onclick="toggleAccordion(this)">${i.title}<span>▼</span></button>
+                        <div class="accordion-content"><div class="accordion-inner">${linkify(i.content)}</div></div>
                     </div>`).join('');
 
                 updateAttendanceButton(data.hasAttendedToday, profile.userId);
@@ -210,11 +221,21 @@
         }
 
         function renderList(members) {
-            document.getElementById('list-root').innerHTML = members.map(m => `
-                <div class="m-card" onclick="toggleMember(this)">
-                    <div class="m-icon">${m.photo ? `<img src="${m.photo}" class="m-img" loading="lazy">` : `<img src="l3-logo-official_transparent.png" style="width:25px;opacity:0.2;" loading="lazy">`}</div>
-                    <span style="font-weight:800; font-size:0.9rem;">${m.name}</span><br><small style="opacity:0.3;">${m.term}期</small>
-                    <div class="detail-pane">
+            // 並べ替え: 自分(1番) -> バディ(2番) -> その他
+            const sorted = [...members].sort((a, b) => {
+                if (a.id === myId) return -1;
+                if (b.id === myId) return 1;
+                if (a.id === currentBuddyId) return -1;
+                if (b.id === currentBuddyId) return 1;
+                return 0;
+            });
+
+            document.getElementById('list-root').innerHTML = sorted.map(m => `
+                <div class="m-card ${m.id === myId ? 'my-profile' : ''}" onclick="toggleMember(this, '${m.id}')">
+                    ${m.id === myId ? `<button class="edit-btn" onclick="startEdit(event, '${m.id}')">Profile Edit</button>` : ''}
+                    <div class="m-icon">${m.photo ? `<img src="${m.photo}" class="m-img">` : `<img src="l3-logo-official_transparent.png" style="width:25px;opacity:0.2;">`}</div>
+                    <span style="font-weight:800; font-size:0.9rem;">${m.name}</span>${m.id === myId ? ' (自分)' : m.id === currentBuddyId ? ' (バディ)' : ''}<br><small style="opacity:0.3;">${m.term}期</small>
+                    <div class="detail-pane" id="detail-${m.id}">
                         <div class="d-row"><span class="d-label">Nickname</span><span class="d-val">${m.nickname || "---"}</span></div>
                         <div class="d-row"><span class="d-row-inner"><span class="d-label">Birth</span> <span class="d-val">${m.birthYear}</span></span><span class="d-row-inner"><span class="d-label">Exp</span> <span class="d-val">${m.experience}</span></span></div>
                         <div class="d-row"><span class="d-label">Hobby</span><span class="d-val">${m.hobby}</span></div>
@@ -222,6 +243,53 @@
                         <div class="d-row"><span class="d-label">Racket</span><span class="d-val">${m.racket}</span></div>
                     </div>
                 </div>`).join('');
+        }
+
+        // 検索機能
+        function filterMembers() {
+            const query = document.getElementById('member-search').value.toLowerCase();
+            const filtered = globalMembers.filter(m => 
+                m.name.toLowerCase().includes(query) || 
+                (m.nickname && m.nickname.toLowerCase().includes(query)) ||
+                (m.hobby && m.hobby.toLowerCase().includes(query)) ||
+                (m.racket && m.racket.toLowerCase().includes(query))
+            );
+            renderList(filtered);
+        }
+
+        // 編集機能
+        function startEdit(e, id) {
+            e.stopPropagation();
+            const m = globalMembers.find(member => member.id === id);
+            const pane = document.getElementById(`detail-${id}`);
+            pane.style.display = "block";
+            pane.closest('.m-card').classList.add('expanded');
+            pane.innerHTML = `
+                <div style="text-align:left; margin-bottom:10px;"><small style="font-weight:800; color:var(--l3-orange);">EDIT MODE</small></div>
+                <input class="edit-input" id="edit-nick" value="${m.nickname || ''}" placeholder="Nickname">
+                <input class="edit-input" id="edit-birth" value="${m.birthYear || ''}" placeholder="Birth (西暦)">
+                <input class="edit-input" id="edit-exp" value="${m.experience || ''}" placeholder="Exp">
+                <input class="edit-input" id="edit-hobby" value="${m.hobby || ''}" placeholder="Hobby">
+                <input class="edit-input" id="edit-manga" value="${m.manga || ''}" placeholder="Manga">
+                <input class="edit-input" id="edit-racket" value="${m.racket || ''}" placeholder="Racket">
+                <button class="btn-main btn-attend" style="padding:10px; margin-top:10px;" onclick="saveProfile('${id}')">SAVE</button>
+            `;
+        }
+
+        async function saveProfile(id) {
+            const params = {
+                action: "edit_profile",
+                userId: id,
+                nickname: document.getElementById('edit-nick').value,
+                birthYear: document.getElementById('edit-birth').value,
+                experience: document.getElementById('edit-exp').value,
+                hobby: document.getElementById('edit-hobby').value,
+                manga: document.getElementById('edit-manga').value,
+                racket: document.getElementById('edit-racket').value
+            };
+            await fetch(GAS_URL, { method: "POST", body: JSON.stringify(params) });
+            alert("保存しました！再読み込みします。");
+            location.reload();
         }
 
         function renderStamps(stamps, char) {
@@ -266,22 +334,18 @@
             document.getElementById('tab-'+t).classList.add('active');
             document.getElementById('nav-'+t).classList.add('nav-active');
         }
-        function toggleMember(el) { const ex = el.classList.contains('expanded'); document.querySelectorAll('.m-card').forEach(c=>c.classList.remove('expanded')); if(!ex) el.classList.add('expanded'); }
-        
+        function toggleMember(el, id) { 
+            const ex = el.classList.contains('expanded'); 
+            document.querySelectorAll('.m-card').forEach(c=>c.classList.remove('expanded')); 
+            if(!ex) el.classList.add('expanded'); 
+        }
         function toggleAccordion(el) { 
             const item = el.parentElement;
             const c = el.nextElementSibling; 
             const isActive = item.classList.contains('active');
-            document.querySelectorAll('.accordion-item').forEach(i => {
-                i.classList.remove('active');
-                i.querySelector('.accordion-content').style.maxHeight = null;
-            });
-            if(!isActive) {
-                item.classList.add('active');
-                c.style.maxHeight = c.scrollHeight + "px";
-            }
+            document.querySelectorAll('.accordion-item').forEach(i => { i.classList.remove('active'); i.querySelector('.accordion-content').style.maxHeight = null; });
+            if(!isActive) { item.classList.add('active'); c.style.maxHeight = c.scrollHeight + "px"; }
         }
-        
         initPortal();
     </script>
 </body>
