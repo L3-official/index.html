@@ -71,7 +71,7 @@
         .accordion-trigger span { font-size: 0.6rem; transition: 0.3s; opacity: 0.3; }
         .accordion-item.active span { transform: rotate(180deg); opacity: 1; color: var(--l3-orange); }
         .accordion-content { max-height: 0; overflow: hidden; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: #fff; }
-        .accordion-inner { padding: 4px 19px 22px; font-size: 0.825rem; line-height: 1.8; color: #4b5563; }
+        .accordion-inner { padding: 4px 19px 22px; font-size: 0.825rem; line-height: 1.8; color: #4b5563; white-space: pre-wrap; word-break: break-all; }
         .accordion-inner a { color: #0066cc; text-decoration: underline; font-weight: 800; word-break: break-all; }
 
         .feedback-area { width: 100%; min-height: 80px; border-radius: 15px; border: 1px solid #f0f4f8; padding: 12px; margin: 10px 0; outline: none; font-family: inherit; font-size: 0.8rem; background: #fafbfc; box-sizing: border-box; }
@@ -146,20 +146,27 @@
         let myId = "";
         let currentBuddyId = "";
 
-        // URLリンク化 (アクセスの複数URL認識 & JoinUs専用処理)
+        // URLリンク化と改行処理の修正版
         function linkify(text) {
-            // JoinUs用
+            if (!text) return "";
+
+            // JoinUs専用処理
             if (text.includes("エントリーフォーム")) {
                 const urlRegex = /(https?:\/\/[^\s　\n\r]+)/;
                 const match = text.match(urlRegex);
                 if (match) {
-                    const cleanText = text.replace(match[0], "").trim();
-                    return `${cleanText}<br><a href="${match[0]}" target="_blank" style="color:var(--l3-orange); font-weight:800;">【L3 エントリーフォームはこちら】</a>`;
+                    let cleanText = text.replace(match[0], "").trim();
+                    cleanText = cleanText.replace(/\n/g, '<br>');
+                    return `${cleanText}<br><a href="${match[0]}" target="_blank" style="color:var(--l3-orange); font-weight:800; text-decoration: underline;">【L3 エントリーフォームはこちら】</a>`;
                 }
             }
-            // 通常URLリンク
+
+            // 通常のURLリンク化と改行
             const urlRegex = /(https?:\/\/[^\s　\n\r]+)/g;
-            return text.replace(/\n/g, '<br>').replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`);
+            let formatted = text.replace(urlRegex, url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+            
+            // 改行コードをHTMLタグに変換
+            return formatted.replace(/\n/g, '<br>');
         }
 
         function updateHourglass(startDateStr, endDateStr) {
@@ -221,7 +228,6 @@
         }
 
         function renderList(members) {
-            // 並べ替え: 自分(1番) -> バディ(2番) -> その他
             const sorted = [...members].sort((a, b) => {
                 if (a.id === myId) return -1;
                 if (b.id === myId) return 1;
@@ -245,7 +251,6 @@
                 </div>`).join('');
         }
 
-        // 検索機能
         function filterMembers() {
             const query = document.getElementById('member-search').value.toLowerCase();
             const filtered = globalMembers.filter(m => 
@@ -257,7 +262,6 @@
             renderList(filtered);
         }
 
-        // 編集機能
         function startEdit(e, id) {
             e.stopPropagation();
             const m = globalMembers.find(member => member.id === id);
