@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>L3 Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;500;800&family=Shippori+Mincho:wght@700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -18,11 +18,16 @@
         body { background: var(--bg-body); color: var(--l3-navy); font-family: 'Outfit', sans-serif; margin: 0; padding-bottom: 140px; -webkit-font-smoothing: antialiased; }
         .header-logo { width: 100%; padding: 40px 0 20px; display: flex; justify-content: center; background: #fff; }
         .logo-img { width: 160px; height: auto; }
-        .container { width: 92%; max-width: 400px; margin: 20px auto; display: none; flex-direction: column; gap: 15px; }
+        .container { width: 92%; max-width: 400px; margin: 20px auto; display: none; flex-direction: column; gap: 15px; position: relative; }
         .container.active { display: flex; }
         .l3-card { background: #fff; border-radius: 35px; padding: 25px; box-shadow: 0 10px 30px rgba(0,43,91,0.03); text-align: center; position: relative; }
         .member-name { font-family: 'Shippori Mincho', serif; font-size: 2.2rem; margin: 10px 0 5px; font-weight: 800; }
         
+        /* ぼかし制限用スタイル */
+        .locked-blur { filter: blur(12px); pointer-events: none; user-select: none; }
+        .lock-overlay { position: absolute; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: rgba(248, 250, 253, 0.4); border-radius: 35px; }
+        .lock-badge { background: var(--l3-navy); color: #fff; padding: 12px 24px; border-radius: 20px; font-weight: 800; font-size: 0.8rem; box-shadow: 0 10px 20px rgba(0,43,91,0.2); }
+
         /* 砂時計 */
         .hourglass-wrapper { margin: 10px 0; text-align: center; }
         .hourglass-svg { width: 100px; height: 130px; filter: drop-shadow(0 5px 15px rgba(0,43,91,0.1)); }
@@ -63,9 +68,9 @@
 
         /* 編集ボタン & フォーム */
         .edit-btn { position: absolute; top: 15px; right: 15px; font-size: 0.6rem; background: var(--l3-lime); color: var(--l3-navy); padding: 5px 10px; border-radius: 8px; font-weight: 800; border: none; cursor: pointer; }
-        .edit-input { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #eee; font-size: 0.8rem; font-weight: 800; margin-bottom: 5px; }
+        .edit-input { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #eee; font-size: 0.85rem; font-weight: 800; margin-bottom: 8px; box-sizing: border-box; font-family: inherit; }
 
-        /* アコーディオン (0.75倍) */
+        /* アコーディオン */
         .accordion-item { background: #fff; border-radius: 20px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,43,91,0.04); }
         .accordion-trigger { width: 100%; padding: 21px 19px; display: flex; justify-content: space-between; align-items: center; background: none; border: none; font-weight: 800; font-size: 0.9rem; color: var(--l3-navy); text-align: left; cursor: pointer; transition: 0.3s; }
         .accordion-trigger span { font-size: 0.6rem; transition: 0.3s; opacity: 0.3; }
@@ -75,8 +80,12 @@
         .accordion-inner a { color: #0066cc; text-decoration: underline; font-weight: 800; word-break: break-all; }
 
         .feedback-area { width: 100%; min-height: 80px; border-radius: 15px; border: 1px solid #f0f4f8; padding: 12px; margin: 10px 0; outline: none; font-family: inherit; font-size: 0.8rem; background: #fafbfc; box-sizing: border-box; }
-        .nav { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 380px; background: #01162d; border-radius: 30px; display: flex; justify-content: space-around; padding: 18px 0; z-index: 2000; }
-        .nav-item { color: #fff; opacity: 0.3; font-size: 8px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+        
+        /* ナビゲーション（アイコン＋テキスト化） */
+        .nav { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 450px; background: #01162d; border-radius: 30px; display: flex; justify-content: space-around; padding: 12px 0; z-index: 2000; box-shadow: 0 15px 35px rgba(0,43,91,0.3); }
+        .nav-item { color: #fff; opacity: 0.4; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; transition: 0.3s; }
+        .nav-icon { font-size: 1.2rem; }
+        .nav-text { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
         .nav-active { color: var(--l3-lime); opacity: 1; }
     </style>
 </head>
@@ -84,57 +93,71 @@
     <header class="header-logo"><img src="l3-logo-official_transparent.png" class="logo-img"></header>
     
     <main id="tab-mypage" class="container active">
-        <div class="l3-card">
-            <span style="font-size: 0.6rem; opacity: 0.3; letter-spacing: 0.2em;">OFFICIAL MEMBER</span>
-            <h2 id="display-name" class="member-name">---</h2>
-            <div class="hourglass-wrapper">
-                <svg class="hourglass-svg" viewBox="0 0 100 140">
-                    <defs>
-                        <path id="top-bulb" d="M20,10 C20,10 20,60 50,65 C80,60 80,10 80,10 L20,10 Z" />
-                        <path id="bottom-bulb" d="M20,130 C20,130 20,80 50,75 C80,80 80,130 80,130 L20,130 Z" />
-                        <clipPath id="clip-top"><use href="#top-bulb" /></clipPath>
-                        <clipPath id="clip-bottom"><use href="#bottom-bulb" /></clipPath>
-                    </defs>
-                    <use href="#top-bulb" class="glass-frame" />
-                    <use href="#bottom-bulb" class="glass-frame" />
-                    <g clip-path="url(#clip-top)"><rect id="sand-top" class="sand-animation sand-drain" x="0" y="10" width="100" height="60" /></g>
-                    <g clip-path="url(#clip-bottom)"><rect id="sand-bottom" class="sand-animation sand-fill" x="0" y="75" width="100" height="60" /></g>
-                    <line id="sand-stream" class="sand-stream" x1="50" y1="65" x2="50" y2="75" />
-                    <path d="M15,10 L85,10" stroke="var(--l3-navy)" stroke-width="4" stroke-linecap="round" />
-                    <path d="M15,130 L85,130" stroke="var(--l3-navy)" stroke-width="4" stroke-linecap="round" />
-                </svg>
+        <div class="content-wrapper">
+            <div class="l3-card">
+                <span style="font-size: 0.6rem; opacity: 0.3; letter-spacing: 0.2em;">OFFICIAL MEMBER</span>
+                <h2 id="display-name" class="member-name">---</h2>
+                <div class="hourglass-wrapper">
+                    <svg class="hourglass-svg" viewBox="0 0 100 140">
+                        <defs>
+                            <path id="top-bulb" d="M20,10 C20,10 20,60 50,65 C80,60 80,10 80,10 L20,10 Z" />
+                            <path id="bottom-bulb" d="M20,130 C20,130 20,80 50,75 C80,80 80,130 80,130 L20,130 Z" />
+                            <clipPath id="clip-top"><use href="#top-bulb" /></clipPath>
+                            <clipPath id="clip-bottom"><use href="#bottom-bulb" /></clipPath>
+                        </defs>
+                        <use href="#top-bulb" class="glass-frame" />
+                        <use href="#bottom-bulb" class="glass-frame" />
+                        <g clip-path="url(#clip-top)"><rect id="sand-top" class="sand-animation sand-drain" x="0" y="10" width="100" height="60" /></g>
+                        <g clip-path="url(#clip-bottom)"><rect id="sand-bottom" class="sand-animation sand-fill" x="0" y="75" width="100" height="60" /></g>
+                        <line id="sand-stream" class="sand-stream" x1="50" y1="65" x2="50" y2="75" />
+                        <path d="M15,10 L85,10" stroke="var(--l3-navy)" stroke-width="4" stroke-linecap="round" />
+                        <path d="M15,130 L85,130" stroke="var(--l3-navy)" stroke-width="4" stroke-linecap="round" />
+                    </svg>
+                </div>
+                <span style="font-size: 0.7rem; opacity: 0.5; letter-spacing: 0.1em;">REMAINING</span>
+                <div id="display-days" style="font-size: 2.5rem; font-weight: 800; line-height: 1;">---</div>
+                <span style="font-size: 0.8rem; font-weight: 800;">DAYS</span>
             </div>
-            <span style="font-size: 0.7rem; opacity: 0.5; letter-spacing: 0.1em;">REMAINING</span>
-            <div id="display-days" style="font-size: 2.5rem; font-weight: 800; line-height: 1;">---</div>
-            <span style="font-size: 0.8rem; font-weight: 800;">DAYS</span>
-        </div>
-        <button id="btn-attendance" class="btn-main">Loading...</button>
-        <div class="l3-card">
-            <div style="font-size:0.6rem; opacity:0.3; font-weight:800; letter-spacing: 0.1em;">本日のお相手</div>
-            <div id="buddy-name" style="font-family:'Shippori Mincho',serif; font-size:1.8rem; font-weight:800; margin:5px 0 20px;">---</div>
-            <button onclick="recordBuddyInteraction()" class="btn-main" style="background:var(--l3-lime); color:var(--l3-navy); margin-bottom: 20px;">交流を記録する</button>
-            <div id="stamp-root" class="stamp-grid"></div>
-        </div>
-        <div class="l3-card">
-            <h3 style="font-size: 0.7rem; opacity: 0.4;">運営へのご意見箱</h3>
-            <textarea id="feedback-text" class="feedback-area" placeholder="要望やメッセージを入力してください..."></textarea>
-            <button onclick="sendFeedback()" style="width:100%; padding:14px; border-radius:15px; background:var(--l3-navy); color:#fff; border:none; font-weight:800;">送信する</button>
+            <button id="btn-attendance" class="btn-main" style="margin-top:10px;">Loading...</button>
+            <div class="l3-card" style="margin-top:15px;">
+                <div style="font-size:0.6rem; opacity:0.3; font-weight:800; letter-spacing: 0.1em;">本日のお相手</div>
+                <div id="buddy-name" style="font-family:'Shippori Mincho',serif; font-size:1.8rem; font-weight:800; margin:5px 0 20px;">---</div>
+                <button onclick="recordBuddyInteraction()" class="btn-main" style="background:var(--l3-lime); color:var(--l3-navy); margin-bottom: 20px;">交流を記録する</button>
+                <div id="stamp-root" class="stamp-grid"></div>
+            </div>
+            <div class="l3-card" style="margin-top:15px;">
+                <h3 style="font-size: 0.7rem; opacity: 0.4;">運営へのご意見箱</h3>
+                <textarea id="feedback-text" class="feedback-area" placeholder="要望やメッセージを入力してください..."></textarea>
+                <button onclick="sendFeedback()" style="width:100%; padding:14px; border-radius:15px; background:var(--l3-navy); color:#fff; border:none; font-weight:800;">送信する</button>
+            </div>
         </div>
     </main>
 
     <main id="tab-list" class="container">
-        <div class="search-container">
-            <input type="text" id="member-search" class="search-input" placeholder="メンバーを検索 (名前, 生まれ年, 趣味...)" oninput="filterMembers()">
+        <div class="content-wrapper">
+            <div class="search-container">
+                <input type="text" id="member-search" class="search-input" placeholder="名前・趣味などで検索" oninput="filterMembers()">
+            </div>
+            <div id="list-root" class="list-grid"></div>
         </div>
-        <div id="list-root" class="list-grid"></div>
+    </main>
+
+    <main id="tab-court" class="container">
+        <div class="content-wrapper">
+            <div class="l3-card" style="opacity:0.5; padding:60px 20px;">
+                <span style="font-size:3rem;">🏸</span>
+                <p style="font-size:0.8rem; font-weight:800; margin-top:20px;">COURT管理画面<br>準備中</p>
+            </div>
+        </div>
     </main>
 
     <main id="tab-info" class="container"><div id="info-root"></div></main>
 
     <nav class="nav">
-        <div class="nav-item nav-active" id="nav-mypage" onclick="switchTab('mypage')">My Page</div>
-        <div class="nav-item" id="nav-list" onclick="switchTab('list')">List</div>
-        <div class="nav-item" id="nav-info" onclick="switchTab('info')">Info</div>
+        <div class="nav-item nav-active" id="nav-mypage" onclick="switchTab('mypage')"><span class="nav-icon">👤</span><span class="nav-text">My Page</span></div>
+        <div class="nav-item" id="nav-list" onclick="switchTab('list')"><span class="nav-icon">👥</span><span class="nav-text">List</span></div>
+        <div class="nav-item" id="nav-court" onclick="switchTab('court')"><span class="nav-icon">🏸</span><span class="nav-text">Court</span></div>
+        <div class="nav-item" id="nav-info" onclick="switchTab('info')"><span class="nav-icon">📢</span><span class="nav-text">Info</span></div>
     </nav>
 
     <script>
@@ -146,31 +169,23 @@
         let myId = "";
         let currentBuddyId = "";
 
-        // URLリンク化と改行処理の修正版
         function linkify(text) {
             if (!text) return "";
-
-            // JoinUs専用処理
             if (text.includes("エントリーフォーム")) {
                 const urlRegex = /(https?:\/\/[^\s　\n\r]+)/;
                 const match = text.match(urlRegex);
                 if (match) {
                     const url = match[0];
                     const label = "【L3 エントリーフォームはこちら】";
-                    let formatted = text.replace(url, "").trim();
-                    formatted = formatted.replace(/\n/g, '<br>');
+                    let formatted = text.replace(url, "").trim().replace(/\n/g, '<br>');
                     if (formatted.includes(label)) {
                         return formatted.replace(label, `<a href="${url}" target="_blank" style="color:var(--l3-orange); font-weight:800; text-decoration: underline;">${label}</a>`);
                     }
                     return `${formatted}<br><a href="${url}" target="_blank" style="color:var(--l3-orange); font-weight:800; text-decoration: underline;">${label}</a>`;
                 }
             }
-
-            // 通常のURLリンク化と改行
             const urlRegex = /(https?:\/\/[^\s　\n\r]+)/g;
             let formatted = text.replace(urlRegex, url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
-            
-            // 改行コードをHTMLタグに変換
             return formatted.replace(/\n/g, '<br>');
         }
 
@@ -208,28 +223,50 @@
                 const res = await fetch(`${GAS_URL}?id=${profile.userId}`);
                 const data = await res.json();
 
-                myId = data.myId;
-                currentBuddyId = data.buddyId;
-                document.getElementById('display-name').innerText = data.userName;
-                updateHourglass(data.joinDate, data.graduationDate);
-                document.getElementById('buddy-name').innerText = data.buddyName || "---";
-                currentStamps = data.stamps;
-                buddyNameChar = data.buddyName ? data.buddyName.charAt(0) : '✔';
-                renderStamps(currentStamps, buddyNameChar);
+                const isRegistered = data && data.myId;
 
-                if(data.allMembers) {
-                    globalMembers = data.allMembers;
-                    renderList(globalMembers);
+                if (isRegistered) {
+                    myId = data.myId;
+                    currentBuddyId = data.buddyId;
+                    document.getElementById('display-name').innerText = data.userName;
+                    updateHourglass(data.joinDate, data.graduationDate);
+                    document.getElementById('buddy-name').innerText = data.buddyName || "---";
+                    currentStamps = data.stamps;
+                    buddyNameChar = data.buddyName ? data.buddyName.charAt(0) : '✔';
+                    renderStamps(currentStamps, buddyNameChar);
+                    if(data.allMembers) {
+                        globalMembers = data.allMembers;
+                        renderList(globalMembers);
+                    }
+                    updateAttendanceButton(data.hasAttendedToday, profile.userId);
+                } else {
+                    applyAccessLimit('tab-mypage');
+                    applyAccessLimit('tab-list');
+                    applyAccessLimit('tab-court');
                 }
 
-                document.getElementById('info-root').innerHTML = data.infoData.map(i => `
-                    <div class="accordion-item">
-                        <button class="accordion-trigger" onclick="toggleAccordion(this)">${i.title}<span>▼</span></button>
-                        <div class="accordion-content"><div class="accordion-inner">${linkify(i.content)}</div></div>
-                    </div>`).join('');
+                if (data.infoData) {
+                    document.getElementById('info-root').innerHTML = data.infoData.map(i => `
+                        <div class="accordion-item">
+                            <button class="accordion-trigger" onclick="toggleAccordion(this)">${i.title}<span>▼</span></button>
+                            <div class="accordion-content"><div class="accordion-inner">${linkify(i.content)}</div></div>
+                        </div>`).join('');
+                }
+            } catch (e) { 
+                console.error(e);
+                applyAccessLimit('tab-mypage'); applyAccessLimit('tab-list'); applyAccessLimit('tab-court');
+            }
+        }
 
-                updateAttendanceButton(data.hasAttendedToday, profile.userId);
-            } catch (e) { console.error(e); }
+        function applyAccessLimit(tabId) {
+            const container = document.getElementById(tabId);
+            if (!container) return;
+            const wrapper = container.querySelector('.content-wrapper');
+            if (wrapper) wrapper.classList.add('locked-blur');
+            const overlay = document.createElement('div');
+            overlay.className = 'lock-overlay';
+            overlay.innerHTML = '<div class="lock-badge">会員限定コンテンツ</div>';
+            container.appendChild(overlay);
         }
 
         function renderList(members) {
@@ -240,29 +277,23 @@
                 if (b.id === currentBuddyId) return 1;
                 return 0;
             });
-
             document.getElementById('list-root').innerHTML = sorted.map(m => `
                 <div class="m-card ${m.id === myId ? 'my-profile' : ''}" onclick="toggleMember(this, '${m.id}')">
-                    ${m.id === myId ? `<button class="edit-btn" onclick="startEdit(event, '${m.id}')">Profile Edit</button>` : ''}
+                    ${m.id === myId ? `<button class="edit-btn" onclick="startEdit(event, '${m.id}')">Edit</button>` : ''}
                     <div class="m-icon">${m.photo ? `<img src="${m.photo}" class="m-img">` : `<img src="l3-logo-official_transparent.png" style="width:25px;opacity:0.2;">`}</div>
-                    <span style="font-weight:800; font-size:0.9rem;">${m.name}</span>${m.id === myId ? ' (自分)' : m.id === currentBuddyId ? ' (バディ)' : ''}<br><small style="opacity:0.3;">${m.term}期</small>
+                    <span style="font-weight:800; font-size:0.9rem;">${m.name}</span><br><small style="opacity:0.3;">Lv.${m.level || '?'}</small>
                     <div class="detail-pane" id="detail-${m.id}">
-                        <div class="d-row"><span class="d-label">Nickname</span><span class="d-val">${m.nickname || "---"}</span></div>
-                        <div class="d-row"><span class="d-row-inner"><span class="d-label">Birth</span> <span class="d-val">${m.birthYear}</span></span><span class="d-row-inner"><span class="d-label">Exp</span> <span class="d-val">${m.experience}</span></span></div>
-                        <div class="d-row"><span class="d-label">Hobby</span><span class="d-val">${m.hobby}</span></div>
-                        <div class="d-row"><span class="d-label">Manga</span><span class="d-val">${m.manga}</span></div>
-                        <div class="d-row"><span class="d-label">Racket</span><span class="d-val">${m.racket}</span></div>
+                        <div class="d-row"><span class="d-label">Level</span><span class="d-val">${m.level || "---"}</span></div>
+                        <div class="d-row"><span class="d-label">Birth</span><span class="d-val">${m.birthYear || "---"}</span></div>
+                        <div class="d-row"><span class="d-label">Hobby</span><span class="d-val">${m.hobby || "---"}</span></div>
                     </div>
                 </div>`).join('');
         }
 
-        // 修正箇所：名前、生まれ年、趣味から検索できるようにロジックを更新
         function filterMembers() {
             const query = document.getElementById('member-search').value.toLowerCase();
-            const filtered = globalMembers.filter(m => 
-                m.name.toLowerCase().includes(query) || 
-                (m.birthYear && String(m.birthYear).includes(query)) ||
-                (m.hobby && m.hobby.toLowerCase().includes(query))
+            const filtered = globalMembers.filter(m => 
+                m.name.toLowerCase().includes(query) || (m.birthYear && String(m.birthYear).includes(query)) || (m.hobby && m.hobby.toLowerCase().includes(query))
             );
             renderList(filtered);
         }
@@ -275,13 +306,17 @@
             pane.closest('.m-card').classList.add('expanded');
             pane.innerHTML = `
                 <div style="text-align:left; margin-bottom:10px;"><small style="font-weight:800; color:var(--l3-orange);">EDIT MODE</small></div>
-                <input class="edit-input" id="edit-nick" value="${m.nickname || ''}" placeholder="Nickname">
-                <input class="edit-input" id="edit-birth" value="${m.birthYear || ''}" placeholder="Birth (西暦)">
-                <input class="edit-input" id="edit-exp" value="${m.experience || ''}" placeholder="Exp">
+                <select class="edit-input" id="edit-level" style="font-weight:800;">
+                    <option value="うさぎ" ${m.level === 'うさぎ' ? 'selected' : ''}>🐰 うさぎ</option>
+                    <option value="キツネ" ${m.level === 'キツネ' ? 'selected' : ''}>🦊 キツネ</option>
+                </select>
+                <p style="font-size:0.6rem; color:#666; margin-top:-5px; margin-bottom:10px; line-height:1.4;">
+                    ※うさぎ：部活などでの経験がない方<br>
+                    ※キツネ：部活などで概ね1年以上の経験がある方
+                </p>
                 <input class="edit-input" id="edit-hobby" value="${m.hobby || ''}" placeholder="Hobby">
-                <input class="edit-input" id="edit-manga" value="${m.manga || ''}" placeholder="Manga">
-                <input class="edit-input" id="edit-racket" value="${m.racket || ''}" placeholder="Racket">
-                <button class="btn-main btn-attend" style="padding:10px; margin-top:10px;" onclick="saveProfile('${id}')">SAVE</button>
+                <input class="edit-input" id="edit-birth" value="${m.birthYear || ''}" placeholder="Birth Year">
+                <button class="btn-main btn-attend" style="padding:10px; margin-top:5px;" onclick="saveProfile('${id}')">SAVE</button>
             `;
         }
 
@@ -289,36 +324,30 @@
             const params = {
                 action: "edit_profile",
                 userId: id,
-                nickname: document.getElementById('edit-nick').value,
-                birthYear: document.getElementById('edit-birth').value,
-                experience: document.getElementById('edit-exp').value,
+                level: document.getElementById('edit-level').value,
                 hobby: document.getElementById('edit-hobby').value,
-                manga: document.getElementById('edit-manga').value,
-                racket: document.getElementById('edit-racket').value
+                birthYear: document.getElementById('edit-birth').value
             };
             await fetch(GAS_URL, { method: "POST", body: JSON.stringify(params) });
-            alert("保存しました！再読み込みします。");
-            location.reload();
+            alert("保存しました！"); location.reload();
         }
 
         function renderStamps(stamps, char) {
-            document.getElementById('stamp-root').innerHTML = Array(8).fill(0).map((_, i) => 
+            document.getElementById('stamp-root').innerHTML = Array(8).fill(0).map((_, i) => 
                 i < stamps ? `<div class="slot filled">${char}</div>` : `<div class="slot"></div>`
             ).join('');
         }
 
         async function recordBuddyInteraction() {
             if (currentStamps >= 8) return alert("スタンプがいっぱいです！");
-            if (!confirm("バディとの交流を記録しますか？")) return;
             const profile = await liff.getProfile();
             await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "record_buddy", userId: profile.userId }) });
-            currentStamps++;
-            renderStamps(currentStamps, buddyNameChar);
-            alert("交流を記録しました！");
+            location.reload();
         }
 
         function updateAttendanceButton(attended, userId) {
             const btn = document.getElementById('btn-attendance');
+            if(!btn) return;
             btn.innerText = attended ? "出席を取り消す" : "出席を記録する";
             btn.className = "btn-main " + (attended ? "btn-cancel" : "btn-attend");
             btn.onclick = () => handleAttendance(attended ? "cancel_attendance" : "attendance", attended ? "取り消しますか？" : "出席しますか？", userId);
@@ -330,31 +359,26 @@
             location.reload();
         }
 
-        async function sendFeedback() {
-            const text = document.getElementById('feedback-text').value; if (!text) return;
-            const profile = await liff.getProfile();
-            await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "feedback", userId: profile.userId, message: text }) });
-            alert("送信完了！"); document.getElementById('feedback-text').value = "";
-        }
-
         function switchTab(t) {
             document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('nav-active'));
             document.getElementById('tab-'+t).classList.add('active');
             document.getElementById('nav-'+t).classList.add('nav-active');
+            gsap.fromTo('#tab-'+t, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3 });
         }
-        function toggleMember(el, id) { 
-            const ex = el.classList.contains('expanded'); 
-            document.querySelectorAll('.m-card').forEach(c=>c.classList.remove('expanded')); 
-            if(!ex) el.classList.add('expanded'); 
+
+        function toggleMember(el, id) {
+            const ex = el.classList.contains('expanded');
+            document.querySelectorAll('.m-card').forEach(c => c.classList.remove('expanded'));
+            if(!ex) el.classList.add('expanded');
         }
+
         function toggleAccordion(el) { 
-            const item = el.parentElement;
-            const c = el.nextElementSibling; 
-            const isActive = item.classList.contains('active');
+            const item = el.parentElement; const c = el.nextElementSibling; const isActive = item.classList.contains('active');
             document.querySelectorAll('.accordion-item').forEach(i => { i.classList.remove('active'); i.querySelector('.accordion-content').style.maxHeight = null; });
             if(!isActive) { item.classList.add('active'); c.style.maxHeight = c.scrollHeight + "px"; }
         }
+
         initPortal();
     </script>
 </body>
