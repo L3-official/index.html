@@ -124,7 +124,7 @@
 
     <main id="tab-list" class="container">
         <div class="search-container">
-            <input type="text" id="member-search" class="search-input" placeholder="メンバーを検索 (名前, 趣味, ラケット...)" oninput="filterMembers()">
+            <input type="text" id="member-search" class="search-input" placeholder="メンバーを検索 (名前, 生まれ年, 趣味...)" oninput="filterMembers()">
         </div>
         <div id="list-root" class="list-grid"></div>
     </main>
@@ -157,14 +157,11 @@
                 if (match) {
                     const url = match[0];
                     const label = "【L3 エントリーフォームはこちら】";
-                    // 文章からURLを消して改行を<br>にする
                     let formatted = text.replace(url, "").trim();
                     formatted = formatted.replace(/\n/g, '<br>');
-                    // 文章内の特定のラベル部分だけをリンクに置き換える
                     if (formatted.includes(label)) {
                         return formatted.replace(label, `<a href="${url}" target="_blank" style="color:var(--l3-orange); font-weight:800; text-decoration: underline;">${label}</a>`);
                     }
-                    // 万が一含まれていない場合は末尾に追加
                     return `${formatted}<br><a href="${url}" target="_blank" style="color:var(--l3-orange); font-weight:800; text-decoration: underline;">${label}</a>`;
                 }
             }
@@ -259,13 +256,13 @@
                 </div>`).join('');
         }
 
+        // 修正箇所：名前、生まれ年、趣味から検索できるようにロジックを更新
         function filterMembers() {
             const query = document.getElementById('member-search').value.toLowerCase();
             const filtered = globalMembers.filter(m => 
                 m.name.toLowerCase().includes(query) || 
-                (m.nickname && m.nickname.toLowerCase().includes(query)) ||
-                (m.hobby && m.hobby.toLowerCase().includes(query)) ||
-                (m.racket && m.racket.toLowerCase().includes(query))
+                (m.birthYear && String(m.birthYear).includes(query)) ||
+                (m.hobby && m.hobby.toLowerCase().includes(query))
             );
             renderList(filtered);
         }
