@@ -1,189 +1,261 @@
-/**
- * GAS: L3 Portal Backend (最終完成版)
- * A(0):LINE ID, B(1):名前, L(11):バディID, M(12):アイコンURL, N(13):真のID
- */
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L3 Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;500;800&family=Shippori+Mincho:wght@700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+        :root { 
+            --l3-navy: #002b5b; --l3-lime: #e1ff00; --bg-body: #f8fafd; --l3-orange: #d9822b;
+            --sand-duration: 100s; --sand-delay: 0s; --court-green: #004d40;
+        }
+        body { background: var(--bg-body); color: var(--l3-navy); font-family: 'Outfit', sans-serif; margin: 0; padding-bottom: 140px; -webkit-font-smoothing: antialiased; }
+        .header-logo { width: 100%; padding: 40px 0 20px; display: flex; justify-content: center; background: #fff; }
+        .logo-img { width: 160px; height: auto; }
+        .container { width: 92%; max-width: 400px; margin: 20px auto; display: none; flex-direction: column; gap: 15px; }
+        .container.active { display: flex; }
+        .l3-card { background: #fff; border-radius: 35px; padding: 25px; box-shadow: 0 10px 30px rgba(0,43,91,0.03); text-align: center; position: relative; }
+        .member-name { font-family: 'Shippori Mincho', serif; font-size: 2.2rem; margin: 10px 0 5px; font-weight: 800; }
+        
+        /* 砂時計 */
+        .hourglass-wrapper { margin: 10px 0; text-align: center; }
+        .hourglass-svg { width: 100px; height: 130px; filter: drop-shadow(0 5px 15px rgba(0,43,91,0.1)); }
+        .glass-frame { fill: rgba(0, 43, 91, 0.03); stroke: var(--l3-navy); stroke-width: 2; }
+        .sand-animation { fill: var(--l3-lime); animation-duration: var(--sand-duration); animation-delay: var(--sand-delay); animation-timing-function: linear; animation-fill-mode: forwards; animation-play-state: paused; }
+        .sand-drain { animation-name: drain; transform-origin: bottom; }
+        .sand-fill { animation-name: fill; transform-origin: bottom; transform: scaleY(0); }
+        .sand-stream { stroke: var(--l3-lime); stroke-width: 2; stroke-dasharray: 4, 2; animation: flow 0.5s linear infinite; opacity: 0; }
+        @keyframes drain { 0% { transform: scaleY(1); } 100% { transform: scaleY(0); } }
+        @keyframes fill { 0% { transform: scaleY(0); } 100% { transform: scaleY(1); } }
+        @keyframes flow { from { stroke-dashoffset: 6; } to { stroke-dashoffset: 0; } }
 
-const SS = SpreadsheetApp.getActiveSpreadsheet();
-const MEMBER_SHEET = SS.getSheetByName("会員名簿");
-const ATTEND_SHEET = SS.getSheetByName("出席簿");
-const STAMP_SHEET = SS.getSheetByName("バディスタンプ");
-const INFO_SHEET = SS.getSheetByName("info");
+        /* ボタン */
+        .btn-main { width: 100%; padding: 20px; border-radius: 20px; border: none; font-weight: 800; font-size: 1rem; cursor: pointer; color: #fff; transition: 0.3s; }
+        .btn-attend { background: var(--l3-navy); }
+        .btn-cancel { background: var(--l3-orange); }
 
-function doGet(e) {
-  const userId = e.parameter.id;
-  const allMembers = getAllMemberData();
-  const myData = allMembers.find(m => m.trueId === userId);
-  const infoData = getInfoData();
+        /* スタンプ (アイコン表示対応) */
+        .stamp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 15px; }
+        .slot { aspect-ratio: 1/1; background: #f0f4f8; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid #fff; }
+        .slot img { width: 100%; height: 100%; object-fit: cover; }
+        .slot.empty { border: 2px dashed #d0d7de; }
 
-  let buddyName = "---";
-  if (myData && myData.buddyTargetId && myData.buddyTargetId !== "---") {
-    const buddyData = allMembers.find(m => m.lineId === myData.buddyTargetId);
-    if (buddyData) buddyName = buddyData.B_name;
-  }
+        /* LIST */
+        .list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .m-card { background: #fff; border-radius: 25px; padding: 15px; text-align: center; border: 1px solid rgba(0,43,91,0.02); cursor: pointer; box-shadow: 0 4px 12px rgba(0,43,91,0.02); transition: 0.3s; position: relative; }
+        .m-card.expanded { grid-column: span 2; padding: 25px; }
+        .m-icon { width: 55px; height: 55px; background: #f0f4f8; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .m-img { width: 100%; height: 100%; object-fit: cover; }
+        .detail-pane { display: none; margin-top: 15px; text-align: left; border-top: 1px solid #f0f4f8; padding-top: 15px; }
+        .m-card.expanded .detail-pane { display: block; }
+        .d-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f9fafb; }
+        .d-label { font-size: 0.6rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; }
+        .d-val { font-size: 0.8rem; font-weight: 800; }
 
-  const response = {
-    myId: myData ? myData.trueId : null,
-    userName: myData ? myData.B_name : "ゲスト",
-    joinDate: myData ? myData.joinDate : null,
-    graduationDate: myData ? myData.graduationDate : null,
-    buddyName: buddyName,
-    isAdmin: myData ? myData.isAdmin : false,
-    allMembers: myData ? allMembers : [], 
-    infoData: infoData,
-    hasAttendedToday: checkAttendance(userId),
-    stampIcons: myData ? getStampIcons(myData.lineId) : []
-  };
+        .edit-btn { position: absolute; top: 15px; right: 15px; font-size: 0.6rem; background: var(--l3-lime); color: var(--l3-navy); padding: 5px 10px; border-radius: 8px; font-weight: 800; border: none; cursor: pointer; }
+        .edit-input, .edit-select { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #eee; font-size: 0.85rem; font-weight: 800; margin-bottom: 8px; box-sizing: border-box; font-family: inherit; }
 
-  return ContentService.createTextOutput(JSON.stringify(response)).setMimeType(ContentService.MimeType.JSON);
-}
+        /* COURT */
+        .admin-panel { background: var(--l3-navy); padding: 25px; border-radius: 30px; color: #fff; display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+        .mode-switch { display: flex; background: rgba(255,255,255,0.1); border-radius: 14px; padding: 4px; }
+        .mode-btn { flex: 1; padding: 10px; border: none; border-radius: 10px; font-weight: 800; cursor: pointer; background: none; color: rgba(255,255,255,0.6); font-size: 0.8rem; }
+        .mode-btn.active { background: #fff; color: var(--l3-navy); }
+        .start-btn { width: 100%; padding: 18px; border-radius: 15px; border: none; background: var(--l3-lime); color: var(--l3-navy); font-size: 1rem; font-weight: 800; cursor: pointer; }
+        .court-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; }
+        .court-box { background: #fff; border-radius: 25px; padding: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
+        .court-label { font-size: 0.7rem; font-weight: 800; background: var(--l3-lime); color: var(--l3-navy); padding: 4px 12px; border-radius: 15px; margin-bottom: 10px; display: inline-block; }
+        .badminton-court { background: var(--court-green); border: 2px solid #fff; border-radius: 10px; height: 160px; position: relative; display: flex; flex-direction: column; }
+        .net-line { position: absolute; top: 50%; width: 100%; height: 2px; background: #fff; opacity: 0.6; z-index: 2; }
+        .court-half { flex: 1; display: flex; justify-content: space-around; align-items: center; padding: 10px; }
+        .player-tag { width: 44%; background: #fff; padding: 10px 4px; border-radius: 10px; font-size: 0.75rem; font-weight: 800; text-align: center; color: var(--l3-navy); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
 
-function doPost(e) {
-  const params = JSON.parse(e.postData.contents);
-  const action = params.action;
-  let result = { success: false };
+        .accordion-item { background: #fff; border-radius: 20px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,43,91,0.04); }
+        .accordion-trigger { width: 100%; padding: 21px 19px; display: flex; justify-content: space-between; align-items: center; background: none; border: none; font-weight: 800; font-size: 0.9rem; color: var(--l3-navy); text-align: left; cursor: pointer; transition: 0.3s; }
+        .accordion-trigger span { font-size: 0.6rem; transition: 0.3s; opacity: 0.3; }
+        .accordion-item.active span { transform: rotate(180deg); opacity: 1; color: var(--l3-orange); }
+        .accordion-content { max-height: 0; overflow: hidden; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: #fff; }
+        .accordion-inner { padding: 4px 19px 22px; font-size: 0.825rem; line-height: 1.8; color: #4b5563; white-space: pre-wrap; word-break: break-all; }
 
-  if (action === "edit_profile") result = saveProfile(params);
-  if (action === "generate_matches") result = generateMatching(params.mode);
-  if (action === "attendance") result = recordAttendance(params.userId);
-  if (action === "cancel_attendance") result = cancelAttendance(params.userId);
-  if (action === "record_buddy") result = recordBuddyInteraction(params.userId);
-  if (action === "feedback") result = saveFeedback(params.userId, params.message);
+        .feedback-area { width: 100%; min-height: 80px; border-radius: 15px; border: 1px solid #f0f4f8; padding: 12px; margin: 10px 0; outline: none; font-family: inherit; font-size: 0.8rem; background: #fafbfc; box-sizing: border-box; }
+        .nav { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 380px; background: #01162d; border-radius: 30px; display: flex; justify-content: space-around; padding: 18px 0; z-index: 2000; }
+        .nav-item { color: #fff; opacity: 0.4; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; transition: 0.3s; }
+        .nav-icon { font-size: 1.2rem; }
+        .nav-text { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+        .nav-active { color: var(--l3-lime); opacity: 1; }
+    </style>
+</head>
+<body>
+    <header class="header-logo"><img src="l3-logo-official_transparent.png" class="logo-img"></header>
+    
+    <main id="tab-mypage" class="container active">
+        <div id="member-mypage">
+            <div class="l3-card">
+                <span style="font-size: 0.6rem; opacity: 0.3; letter-spacing: 0.2em;">OFFICIAL MEMBER</span>
+                <h2 id="display-name" class="member-name">---</h2>
+                <div class="hourglass-wrapper">
+                    <svg class="hourglass-svg" viewBox="0 0 100 140">
+                        <defs>
+                            <path id="top-bulb" d="M20,10 C20,10 20,60 50,65 C80,60 80,10 80,10 L20,10 Z" />
+                            <path id="bottom-bulb" d="M20,130 C20,130 20,80 50,75 C80,80 80,130 80,130 L20,130 Z" />
+                            <clipPath id="clip-top"><use href="#top-bulb" /></clipPath>
+                            <clipPath id="clip-bottom"><use href="#bottom-bulb" /></clipPath>
+                        </defs>
+                        <use href="#top-bulb" class="glass-frame" /><use href="#bottom-bulb" class="glass-frame" />
+                        <g clip-path="url(#clip-top)"><rect id="sand-top" class="sand-animation sand-drain" x="0" y="10" width="100" height="60" /></g>
+                        <g clip-path="url(#clip-bottom)"><rect id="sand-bottom" class="sand-animation sand-fill" x="0" y="75" width="100" height="60" /></g>
+                        <line id="sand-stream" class="sand-stream" x1="50" y1="65" x2="50" y2="75" />
+                        <path d="M15,10 L85,10" stroke="var(--l3-navy)" stroke-width="4" stroke-linecap="round" />
+                        <path d="M15,130 L85,130" stroke="var(--l3-navy)" stroke-width="4" stroke-linecap="round" />
+                    </svg>
+                </div>
+                <span style="font-size: 0.7rem; opacity: 0.5; letter-spacing: 0.1em;">REMAINING</span>
+                <div id="display-days" style="font-size: 2.5rem; font-weight: 800; line-height: 1;">---</div>
+                <span style="font-size: 0.8rem; font-weight: 800;">DAYS</span>
+            </div>
+            <button id="btn-attendance" class="btn-main" style="margin-top:10px;">Loading...</button>
+            <div class="l3-card" style="margin-top:15px;">
+                <div style="font-size:0.6rem; opacity:0.3; font-weight:800; letter-spacing: 0.1em;">本日のお相手</div>
+                <div id="buddy-name" style="font-family:'Shippori Mincho',serif; font-size:1.8rem; font-weight:800; margin:5px 0 20px;">---</div>
+                <button onclick="recordBuddyInteraction()" class="btn-main" style="background:var(--l3-lime); color:var(--l3-navy); margin-bottom: 20px;">交流を記録する</button>
+                <div id="stamp-root" class="stamp-grid"></div>
+            </div>
+            <div class="l3-card" style="margin-top:15px;">
+                <h3 style="font-size: 0.7rem; opacity: 0.4;">運営へのご意見箱</h3>
+                <textarea id="feedback-text" class="feedback-area" placeholder="要望やメッセージを入力してください..."></textarea>
+                <button onclick="sendFeedback()" style="width:100%; padding:14px; border-radius:15px; background:var(--l3-navy); color:#fff; border:none; font-weight:800;">送信する</button>
+            </div>
+        </div>
+    </main>
 
-  return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
-}
+    <main id="tab-list" class="container"><div class="search-container"><input type="text" id="member-search" class="search-input" placeholder="名前で検索" oninput="filterMembers()"></div><div id="list-root" class="list-grid"></div></main>
+    <main id="tab-court" class="container"><div class="admin-panel" id="admin-panel" style="display:none;"><div class="mode-switch"><button class="mode-btn active" id="btn-mode-mix" onclick="setMode('MIX')">完全MIX</button><button class="mode-btn" id="btn-mode-level" onclick="setMode('LEVEL')">スタイル別</button></div><button class="start-btn" onclick="startMatching()">振り分けスタート</button></div><div id="court-root" class="court-grid"></div></main>
+    <main id="tab-info" class="container active"><div id="info-root"></div></main>
 
-// --- スタンプ管理 (アイコン履歴) ---
-function recordBuddyInteraction(trueId) {
-  const all = getAllMemberData();
-  const me = all.find(m => m.trueId === trueId);
-  if (!me || !me.buddyTargetId || me.buddyTargetId === "---") return { success: false, msg: "バディが決まっていません" };
+    <nav class="nav">
+        <div class="nav-item" id="nav-mypage" onclick="switchTab('mypage')"><span class="nav-icon">👤</span><span class="nav-text">My Page</span></div>
+        <div class="nav-item" id="nav-list" onclick="switchTab('list')"><span class="nav-icon">👥</span><span class="nav-text">List</span></div>
+        <div class="nav-item" id="nav-court" onclick="switchTab('court')"><span class="nav-icon">🏸</span><span class="nav-text">Court</span></div>
+        <div class="nav-item nav-active" id="nav-info" onclick="switchTab('info')"><span class="nav-icon">📢</span><span class="nav-text">Info</span></div>
+    </nav>
 
-  const today = Utilities.formatDate(new Date(), "JST", "yyyy/MM/dd");
-  const data = STAMP_SHEET.getDataRange().getValues();
-  
-  // その日1回だけの重複チェック
-  const alreadyDone = data.some(row => Utilities.formatDate(new Date(row[0]), "JST", "yyyy/MM/dd") === today && String(row[1]) === me.lineId);
-  if (alreadyDone) return { success: false, msg: "今日の記録は完了しています" };
+    <script>
+        const GAS_URL = "https://script.google.com/macros/s/AKfycby21EhDYkN_Gjzad4ks8hsyquV61hhuI2VKylGAQwyYvpmvP1iZowqIaM6RdR64HVJeOA/exec";
+        const LIFF_ID = "2008760618-igOldYtb";
+        let globalMembers = []; let myId = ""; let currentMode = 'MIX';
 
-  const buddy = all.find(m => m.lineId === me.buddyTargetId);
-  STAMP_SHEET.appendRow([new Date(), me.lineId, me.buddyTargetId, buddy ? buddy.photo : ""]);
-  return { success: true };
-}
+        async function initPortal() {
+            try {
+                await liff.init({ liffId: LIFF_ID });
+                if (!liff.isLoggedIn()) { liff.login(); return; }
+                const profile = await liff.getProfile();
+                const res = await fetch(`${GAS_URL}?id=${profile.userId}`);
+                const data = await res.json();
+                if (data.infoData) {
+                    document.getElementById('info-root').innerHTML = data.infoData.map(i => `<div class="accordion-item"><button class="accordion-trigger" onclick="toggleAccordion(this)">${i.title}<span>▼</span></button><div class="accordion-content"><div class="accordion-inner">${i.content.replace(/\n/g, '<br>')}</div></div></div>`).join('');
+                }
+                if (data && data.myId) {
+                    myId = data.myId; globalMembers = data.allMembers;
+                    document.getElementById('display-name').innerText = data.userName;
+                    document.getElementById('display-days').innerText = data.daysLeft || "---";
+                    document.getElementById('buddy-name').innerText = data.buddyName || "---";
+                    if(data.isAdmin) document.getElementById('admin-panel').style.display = 'flex';
+                    renderStamps(data.stampIcons);
+                    renderList(globalMembers); updateAttendanceButton(data.hasAttendedToday, profile.userId); switchTab('mypage');
+                } else {
+                    ['nav-mypage', 'nav-list', 'nav-court'].forEach(id => document.getElementById(id).style.display = 'none'); switchTab('info');
+                }
+            } catch (e) { switchTab('info'); }
+        }
 
-function getStampIcons(lineId) {
-  const data = STAMP_SHEET.getDataRange().getValues();
-  return data.filter(row => String(row[1]) === lineId).map(row => row[3]).slice(0, 8);
-}
+        function renderStamps(icons) {
+            document.getElementById('stamp-root').innerHTML = Array(8).fill(0).map((_, i) => 
+                icons[i] ? `<div class="slot"><img src="${icons[i]}"></div>` : `<div class="slot empty"></div>`
+            ).join('');
+        }
 
-// --- 割り振り・L列更新ロジック ---
-function generateMatching(mode) {
-  const attendees = getAllMemberData().filter(m => checkAttendance(m.trueId));
-  if (attendees.length < 4) return { error: "出席者が足りません" };
+        function renderList(members) {
+            document.getElementById('list-root').innerHTML = members.map(m => `
+                <div class="m-card" onclick="toggleMember(this, '${m.trueId}')">
+                    ${m.trueId === myId ? `<button class="edit-btn" onclick="startEdit(event, '${m.trueId}')">Edit</button>` : ''}
+                    <div class="m-icon">${m.photo ? `<img src="${m.photo}" class="m-img">` : m.B_name.charAt(0)}</div>
+                    <span style="font-weight:800; font-size:0.85rem;">${m.B_name}</span><br><small style="opacity:0.4;">${m.term}期</small>
+                    <div class="detail-pane" id="detail-${m.trueId}">
+                        <div class="d-row"><span class="d-label">STYLE</span><span class="d-val">${m.level === 'キツネ' ? '🦊' : '🐰'}</span></div>
+                        <div class="d-row"><span class="d-label">NICKNAME</span><span class="d-val">${m.nickname || "---"}</span></div>
+                        <div class="d-row"><span class="d-label">BIRTH</span><span class="d-val">${m.birthYear || "---"}</span></div>
+                        <div class="d-row"><span class="d-label">EXP</span><span class="d-val">${m.experience || "---"}</span></div>
+                        <div class="d-row"><span class="d-label">HOBBY</span><span class="d-val">${m.hobby || "---"}</span></div>
+                        <div class="d-row"><span class="d-label">MANGA</span><span class="d-val">${m.manga || "---"}</span></div>
+                        <div class="d-row"><span class="d-label">RACKET</span><span class="d-val">${m.racket || "---"}</span></div>
+                    </div>
+                </div>`).join('');
+        }
 
-  let pool = [];
-  let assigned = new Set();
-  
-  // バディペアをシャッフルして作成
-  let shuffled = attendees.sort(() => Math.random() - 0.5);
-  let pairs = [];
-  for (let i = 0; i < shuffled.length; i++) {
-    if (assigned.has(shuffled[i].lineId)) continue;
-    let partner = shuffled.find((m, idx) => idx > i && !assigned.has(m.lineId));
-    if (partner) {
-      pairs.push([shuffled[i], partner]);
-      assigned.add(shuffled[i].lineId); assigned.add(partner.lineId);
-    } else {
-      pool.push(shuffled[i]); // 余った人
-    }
-  }
+        function startEdit(e, id) {
+            e.stopPropagation();
+            const m = globalMembers.find(member => member.trueId === id);
+            const pane = document.getElementById(`detail-${id}`);
+            pane.style.display = "block"; pane.closest('.m-card').classList.add('expanded');
+            pane.innerHTML = `
+                <div style="text-align:left; margin-bottom:10px;"><small style="font-weight:800; color:var(--l3-orange);">EDIT PROFILE</small></div>
+                <select class="edit-select" id="edit-level"><option value="うさぎ" ${m.level === 'うさぎ' ? 'selected' : ''}>🐰 うさぎスタイル</option><option value="キツネ" ${m.level === 'キツネ' ? 'selected' : ''}>🦊 キツネスタイル</option></select>
+                <input class="edit-input" id="edit-nick" value="${m.nickname || ''}" placeholder="Nickname">
+                <input class="edit-input" id="edit-birth" value="${m.birthYear || ''}" placeholder="Birth Year">
+                <input class="edit-input" id="edit-exp" value="${m.experience || ''}" placeholder="Badminton Experience">
+                <input class="edit-input" id="edit-hobby" value="${m.hobby || ''}" placeholder="Hobby">
+                <input class="edit-input" id="edit-manga" value="${m.manga || ''}" placeholder="Favorite Manga">
+                <input class="edit-input" id="edit-racket" value="${m.racket || ''}" placeholder="Racket">
+                <button class="btn-main btn-attend" onclick="saveProfile('${id}')">SAVE</button>`;
+        }
 
-  // 会員名簿のL列を全員更新
-  const memberData = MEMBER_SHEET.getDataRange().getValues();
-  pairs.forEach(p => {
-    updateBuddyIdInSheet(p[0].lineId, p[1].lineId);
-    updateBuddyIdInSheet(p[1].lineId, p[0].lineId);
-  });
-  pool.forEach(s => updateBuddyIdInSheet(s.lineId, "---"));
+        async function saveProfile(id) {
+            const params = { action: "edit_profile", userId: id, level: document.getElementById('edit-level').value, nickname: document.getElementById('edit-nick').value, birthYear: document.getElementById('edit-birth').value, experience: document.getElementById('edit-exp').value, hobby: document.getElementById('edit-hobby').value, manga: document.getElementById('edit-manga').value, racket: document.getElementById('edit-racket').value };
+            await fetch(GAS_URL, { method: "POST", body: JSON.stringify(params) }); alert("保存完了！"); location.reload();
+        }
 
-  // コート表示用データ作成
-  let assignments = [];
-  let courtPool = [];
-  pairs.forEach(p => courtPool.push(p[0], p[1]));
-  courtPool = courtPool.concat(pool);
+        async function startMatching() {
+            if(!confirm(`現在の出席者で「${currentMode}モード」の振り分けを開始しますか？`)) return;
+            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "generate_matches", mode: currentMode }) });
+            location.reload();
+        }
 
-  for (let i = 0; i < 3; i++) {
-    if (courtPool.length >= 4) assignments.push({ court: i+1, players: courtPool.splice(0, 4), type: "MIX" });
-  }
-  return { assignments };
-}
+        function renderCourts(data) {
+            const root = document.getElementById('court-root');
+            if(!data || !data.assignments) { root.innerHTML = `<div class="l3-card" style="opacity:0.5; padding:40px 20px;">🏸 マッチングを開始してください</div>`; return; }
+            root.innerHTML = data.assignments.map(a => `
+                <div class="court-box">
+                    <span class="court-label">${a.type === 'うさぎ' ? '🐰 うさぎ' : a.type === 'キツネ' ? '🦊 キツネ' : '🏸 MIX'} COURT</span>
+                    <div class="badminton-court">
+                        <div class="net-line"></div>
+                        <div class="court-half"><div class="player-tag">${a.players[0].B_name}</div><div class="player-tag">${a.players[1].B_name}</div></div>
+                        <div class="court-half"><div class="player-tag">${a.players[2].B_name}</div><div class="player-tag">${a.players[3].B_name}</div></div>
+                    </div>
+                </div>`).join('');
+        }
 
-function updateBuddyIdInSheet(lineId, buddyLineId) {
-  const data = MEMBER_SHEET.getDataRange().getValues();
-  for (let i = 1; i < data.length; i++) {
-    if (String(data[i][0]) === lineId) {
-      MEMBER_SHEET.getRange(i + 1, 12).setValue(buddyLineId); // L列(12列目)を上書き
-      break;
-    }
-  }
-}
+        async function recordBuddyInteraction() {
+            const profile = await liff.getProfile();
+            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "record_buddy", userId: profile.userId }) });
+            const data = await res.json();
+            if (data.success) { alert("交流を記録しました！"); location.reload(); }
+            else { alert(data.msg); }
+        }
 
-// --- 以下、既存機能の維持 ---
-function getAllMemberData() {
-  const rows = MEMBER_SHEET.getDataRange().getValues();
-  rows.shift();
-  return rows.map(row => ({
-    lineId: String(row[0]), B_name: row[1], term: row[2], joinDate: row[3], graduationDate: row[4],
-    nickname: row[5], birthYear: row[6], experience: row[7], hobby: row[8], manga: row[9],
-    racket: row[10], buddyTargetId: String(row[11]), photo: row[12], trueId: String(row[13]),
-    level: row[14] || "うさぎ", isAdmin: row[15] === true || row[15] === "TRUE"
-  }));
-}
+        function switchTab(t) {
+            document.querySelectorAll('.container').forEach(c => c.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('nav-active'));
+            document.getElementById('tab-'+t).classList.add('active'); document.getElementById('nav-'+t).classList.add('nav-active');
+        }
 
-function checkAttendance(userId) {
-  if (!userId) return false;
-  const data = ATTEND_SHEET.getDataRange().getValues();
-  const today = Utilities.formatDate(new Date(), "JST", "yyyy/MM/dd");
-  return data.some(row => String(row[0]) === userId && Utilities.formatDate(new Date(row[1]), "JST", "yyyy/MM/dd") === today);
-}
+        function setMode(m) { currentMode = m; document.getElementById('btn-mode-mix').classList.toggle('active', m==='MIX'); document.getElementById('btn-mode-level').classList.toggle('active', m==='LEVEL'); }
+        function updateAttendanceButton(attended, userId) { const btn = document.getElementById('btn-attendance'); btn.innerText = attended ? "出席を取り消す" : "出席を記録する"; btn.className = "btn-main " + (attended ? "btn-cancel" : "btn-attend"); btn.onclick = () => handleAttendance(attended ? "cancel_attendance" : "attendance", attended ? "取り消しますか？" : "出席しますか？", userId); }
+        async function handleAttendance(action, msg, userId) { if (!confirm(msg)) return; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action, userId }) }); location.reload(); }
+        function toggleMember(el, id) { const ex = el.classList.contains('expanded'); document.querySelectorAll('.m-card').forEach(c => c.classList.remove('expanded')); if(!ex) el.classList.add('expanded'); }
+        function toggleAccordion(el) { const item = el.parentElement; const c = el.nextElementSibling; const isActive = item.classList.contains('active'); document.querySelectorAll('.accordion-item').forEach(i => { i.classList.remove('active'); i.querySelector('.accordion-content').style.maxHeight = null; }); if(!isActive) { item.classList.add('active'); c.style.maxHeight = c.scrollHeight + "px"; } }
+        async function sendFeedback() { const text = document.getElementById('feedback-text').value; if (!text) return; const profile = await liff.getProfile(); await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "feedback", userId: profile.userId, message: text }) }); alert("送信完了！"); document.getElementById('feedback-text').value = ""; }
 
-function recordAttendance(userId) {
-  if (!userId || checkAttendance(userId)) return { success: true };
-  ATTEND_SHEET.appendRow([userId, new Date()]);
-  return { success: true };
-}
-
-function cancelAttendance(userId) {
-  const data = ATTEND_SHEET.getDataRange().getValues();
-  const today = Utilities.formatDate(new Date(), "JST", "yyyy/MM/dd");
-  for (let i = data.length - 1; i >= 0; i--) {
-    if (String(data[i][0]) === userId && Utilities.formatDate(new Date(data[i][1]), "JST", "yyyy/MM/dd") === today) {
-      ATTEND_SHEET.deleteRow(i + 1); return { success: true };
-    }
-  }
-  return { success: false };
-}
-
-function getInfoData() {
-  try {
-    const rows = INFO_SHEET.getDataRange().getValues(); rows.shift();
-    return rows.map(r => ({ title: r[0], content: r[1] }));
-  } catch(e) { return []; }
-}
-
-function saveProfile(p) {
-  const data = MEMBER_SHEET.getDataRange().getValues();
-  for (let i = 1; i < data.length; i++) {
-    if (String(data[i][13]) === p.userId) {
-      MEMBER_SHEET.getRange(i + 1, 15).setValue(p.level); MEMBER_SHEET.getRange(i + 1, 6).setValue(p.nickname);
-      MEMBER_SHEET.getRange(i + 1, 7).setValue(p.birthYear); MEMBER_SHEET.getRange(i + 1, 8).setValue(p.experience);
-      MEMBER_SHEET.getRange(i + 1, 9).setValue(p.hobby); MEMBER_SHEET.getRange(i + 1, 10).setValue(p.manga);
-      MEMBER_SHEET.getRange(i + 1, 11).setValue(p.racket); return { success: true };
-    }
-  }
-  return { success: false };
-}
-
-function saveFeedback(userId, message) {
-  SS.getSheetByName("ご意見箱").appendRow([new Date(), userId, message]);
-  return { success: true };
-}
+        initPortal();
+    </script>
+</body>
+</html>
