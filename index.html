@@ -157,7 +157,8 @@
                 if (match) {
                     let cleanText = text.replace(match[0], "").trim();
                     cleanText = cleanText.replace(/\n/g, '<br>');
-                    return `${cleanText}<br><a href="${match[0]}" target="_blank" style="color:var(--l3-orange); font-weight:800; text-decoration: underline;">【L3 エントリーフォームはこちら】</a>`;
+                    // 修正箇所：元の文章全体をリンクで囲うことで1つに統合
+                    return `<a href="${match[0]}" target="_blank" style="color:var(--l3-orange); font-weight:800; text-decoration: underline;">${cleanText}</a>`;
                 }
             }
 
