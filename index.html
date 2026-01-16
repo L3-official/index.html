@@ -161,6 +161,23 @@
                 }
             } catch (e) { switchTab('info'); }
         }
+        function renderCourts(data) {
+            const root = document.getElementById('court-root');
+            if(!data || !data.assignments || data.assignments.length === 0) { root.innerHTML = `<div class="l3-card" style="opacity:0.5; padding:40px 20px;">🏸 マッチングを開始してください</div>`; return; }
+            root.innerHTML = data.assignments.map(a => `<div class="court-box"><span class="court-label">${a.type === 'うさぎ' ? '🐰 うさぎ' : a.type === 'キツネ' ? '🦊 キツネ' : '🏸 MIX'} COURT</span><div class="badminton-court"><div class="net-line"></div><div class="court-half"><div class="player-tag">${a.players[0].name}</div><div class="player-tag">${a.players[1].name}</div></div><div class="court-half"><div class="player-tag">${a.players[2].name}</div><div class="player-tag">${a.players[3].name}</div></div></div></div>`).join('');
+        }
+        async function startMatching() {
+            if(!confirm(`現在の出席者で振り分けを開始しますか？`)) return;
+            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "generate_matches", mode: currentMode }) });
+            const data = await res.json();
+            if (data.assignments) {
+                renderCourts(data); // ページをリロードせずその場で表示
+                alert("振り分け完了！");
+                location.reload(); // バディ情報の更新を確実に反映
+            } else {
+                alert(data.error || "エラーが発生しました");
+            }
+        }
         function updateHourglass(s, e) {
             if (!s || !e) return; const start = new Date(s); const end = new Date(e); const now = new Date();
             const total = (end - start) / 1000; const elapsed = (now - start) / 1000;
@@ -198,16 +215,6 @@
         async function saveProfile(id) {
             const params = { action: "edit_profile", userId: id, level: document.getElementById('edit-level').value, nickname: document.getElementById('edit-nick').value, birthYear: document.getElementById('edit-birth').value, experience: document.getElementById('edit-exp').value, hobby: document.getElementById('edit-hobby').value, manga: document.getElementById('edit-manga').value, racket: document.getElementById('edit-racket').value };
             await fetch(GAS_URL, { method: "POST", body: JSON.stringify(params) }); alert("保存完了！"); location.reload();
-        }
-        async function startMatching() {
-            if(!confirm(`振り分けを開始しますか？`)) return;
-            await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "generate_matches", mode: currentMode }) });
-            location.reload();
-        }
-        function renderCourts(data) {
-            const root = document.getElementById('court-root');
-            if(!data || !data.assignments || data.assignments.length === 0) { root.innerHTML = `<div class="l3-card" style="opacity:0.5; padding:40px 20px;">🏸 マッチングを開始してください</div>`; return; }
-            root.innerHTML = data.assignments.map(a => `<div class="court-box"><span class="court-label">${a.type === 'うさぎ' ? '🐰 うさぎ' : a.type === 'キツネ' ? '🦊 キツネ' : '🏸 MIX'} COURT</span><div class="badminton-court"><div class="net-line"></div><div class="court-half"><div class="player-tag">${a.players[0].name}</div><div class="player-tag">${a.players[1].name}</div></div><div class="court-half"><div class="player-tag">${a.players[2].name}</div><div class="player-tag">${a.players[3].name}</div></div></div></div>`).join('');
         }
         async function recordBuddyInteraction() { const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "record_buddy", userId: myId }) }); const data = await res.json(); if (data.success) { alert("記録完了！"); location.reload(); } else { alert(data.msg); } }
         async function sendFeedback() { const text = document.getElementById('feedback-text').value; if (!text) return; await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "feedback", userId: myId, message: text }) }); alert("送信完了！"); document.getElementById('feedback-text').value = ""; }
