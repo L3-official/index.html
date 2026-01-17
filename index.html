@@ -66,6 +66,7 @@
         .accordion-item.active span { transform: rotate(180deg); opacity: 1; color: var(--l3-orange); }
         .accordion-content { max-height: 0; overflow: hidden; transition: 0.4s; background: #fff; }
         .accordion-inner { padding: 4px 19px 22px; font-size: 0.825rem; line-height: 1.8; color: #4b5563; white-space: pre-wrap; word-break: break-all; }
+        /* 【修正点】ご意見箱のサイズ復元 */
         .feedback-area { width: 100%; height: 100px; min-height: 100px; border-radius: 15px; border: 1px solid #f0f4f8; padding: 12px; margin: 10px 0; outline: none; font-family: inherit; font-size: 0.8rem; background: #fafbfc; box-sizing: border-box; resize: none; }
         .nav { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 380px; background: #01162d; border-radius: 30px; display: flex; justify-content: space-around; padding: 18px 0; z-index: 2000; }
         .nav-item { color: #fff; opacity: 0.4; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; transition: 0.3s; }
@@ -76,7 +77,6 @@
 </head>
 <body>
     <header class="header-logo"><img src="l3-logo-official_transparent.png" class="logo-img"></header>
-    
     <main id="tab-mypage" class="container">
         <div class="l3-card">
             <span style="font-size: 0.6rem; opacity: 0.3; letter-spacing: 0.2em;">OFFICIAL MEMBER</span>
@@ -110,11 +110,10 @@
             <button id="btn-feedback-send" style="width:100%; padding:14px; border-radius:15px; background:var(--l3-navy); color:#fff; border:none; font-weight:800;">送信する</button>
         </div>
     </main>
-
     <main id="tab-list" class="container"><div class="search-container"><input type="text" id="member-search" class="search-input" placeholder="名前で検索" oninput="filterMembers()"></div><div id="list-root" class="list-grid"></div></main>
     <main id="tab-court" class="container">
         <div class="admin-panel" id="admin-panel" style="display:none;">
-            <button class="start-btn" onclick="apiAction('determine_buddy')" style="background:#fff; color:var(--l3-navy); margin-bottom:10px;">バディを決定する</button>
+            <button class="start-btn" onclick="postAction('determine_buddy')" style="background:#fff; color:var(--l3-navy); margin-bottom:10px;">バディを決定する</button>
             <div class="mode-switch"><button class="mode-btn active" id="btn-mode-mix" onclick="setMode('MIX')">完全MIX</button><button class="mode-btn" id="btn-mode-level" onclick="setMode('LEVEL')">スタイル別</button></div>
             <button class="start-btn" onclick="startMatching()">振り分けスタート</button>
         </div>
@@ -122,14 +121,12 @@
         <div id="rest-zone-root" style="margin-top: 15px;"></div>
     </main>
     <main id="tab-info" class="container active"><div id="info-root"></div></main>
-
     <nav class="nav">
         <div class="nav-item" id="nav-mypage" onclick="switchTab('mypage')"><span class="nav-icon">👤</span><span class="nav-text">My Page</span></div>
         <div class="nav-item" id="nav-list" onclick="switchTab('list')"><span class="nav-icon">👥</span><span class="nav-text">List</span></div>
         <div class="nav-item" id="nav-court" onclick="switchTab('court')"><span class="nav-icon">🏸</span><span class="nav-text">Court</span></div>
         <div class="nav-item nav-active" id="nav-info" onclick="switchTab('info')"><span class="nav-icon">📢</span><span class="nav-text">Info</span></div>
     </nav>
-
     <script>
         const GAS_URL = "https://script.google.com/macros/s/AKfycby21EhDYkN_Gjzad4ks8hsyquV61hhuI2VKylGAQwyYvpmvP1iZowqIaM6RdR64HVJeOA/exec";
         const LIFF_ID = "2008760618-igOldYtb";
@@ -140,23 +137,24 @@
                 await liff.init({ liffId: LIFF_ID });
                 if (!liff.isLoggedIn()) { liff.login(); return; }
                 const profile = await liff.getProfile();
-                const res = await fetch(`${GAS_URL}?id=${profile.userId}`);
-                globalData = await res.json();
-                
-                // Infoは会員・非会員問わず最速で描画
-                renderInfoAlways(globalData.infoData);
-
-                if (globalData && globalData.myId) {
-                    renderCommon(globalData);
-                    switchTab('mypage');
-                } else {
-                    ['nav-mypage', 'nav-list', 'nav-court'].forEach(id => document.getElementById(id).style.display = 'none');
-                    switchTab('info');
-                }
-            } catch (e) { console.error(e); switchTab('info'); }
+                await refreshData(profile.userId);
+                switchTab('mypage');
+            } catch (e) { switchTab('info'); }
         }
 
-        function renderCommon(data) {
+        async function refreshData(userId) {
+            const res = await fetch(`${GAS_URL}?id=${userId}`);
+            globalData = await res.json();
+            if (globalData.infoData) renderInfo(globalData.infoData);
+            if (globalData && globalData.myId) {
+                renderUI(globalData);
+            } else {
+                ['nav-mypage', 'nav-list', 'nav-court'].forEach(id => document.getElementById(id).style.display = 'none');
+                switchTab('info');
+            }
+        }
+
+        function renderUI(data) {
             document.getElementById('display-name').innerText = data.userName;
             document.getElementById('buddy-name').innerText = data.buddyName || "---";
             document.getElementById('admin-panel').style.display = data.isAdmin ? 'flex' : 'none';
@@ -164,13 +162,12 @@
             renderStamps(data.stampIcons);
             renderCourts(data.courtData);
             updateAttendanceButton(data.hasAttendedToday);
-            document.getElementById('btn-buddy-record').onclick = () => apiAction('record_buddy');
+            document.getElementById('btn-buddy-record').onclick = () => postAction('record_buddy');
             document.getElementById('btn-feedback-send').onclick = () => sendFeedback();
         }
 
-        function renderInfoAlways(infoData) {
-            const root = document.getElementById('info-root');
-            if (infoData) root.innerHTML = infoData.map(i => `<div class="accordion-item"><button class="accordion-trigger" onclick="toggleAccordion(this)">${i.title}<span>▼</span></button><div class="accordion-content"><div class="accordion-inner">${i.content.replace(/\n/g, '<br>')}</div></div></div>`).join('');
+        function renderInfo(infoData) {
+            document.getElementById('info-root').innerHTML = infoData.map(i => `<div class="accordion-item"><button class="accordion-trigger" onclick="toggleAccordion(this)">${i.title}<span>▼</span></button><div class="accordion-content"><div class="accordion-inner">${i.content.replace(/\n/g, '<br>')}</div></div></div>`).join('');
         }
 
         function renderListLazy() {
@@ -187,16 +184,13 @@
             if (data.resters && data.resters.length > 0) { restRoot.innerHTML = `<div class="rest-zone"><small style="font-weight:800; color:#94a3b8; letter-spacing:0.1em;">RESTING MEMBERS</small><div class="rest-list">${data.resters.map(m => `<div class="rest-tag">${m.name}</div>`).join('')}</div></div>`; } else { restRoot.innerHTML = ""; }
         }
 
-        async function apiAction(action, extraParams = {}) {
-            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action, userId: globalData.myId, ...extraParams }) });
+        async function postAction(action, extra = {}) {
+            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action, userId: globalData.myId, ...extra }) });
             globalData = await res.json();
-            renderCommon(globalData);
-            if (action === 'determine_buddy') alert("バディを決定しました！");
+            renderUI(globalData);
+            if (action === 'determine_buddy') alert("バディ決定！");
             if (action === 'generate_matches') alert("振り分け完了！");
         }
-
-        function startMatching() { if(confirm(`振り分けを開始しますか？`)) apiAction('generate_matches', { mode: currentMode }); }
-        function handleAttendance(action, msg) { if (confirm(msg)) apiAction(action); }
 
         function switchTab(t) {
             document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
@@ -204,6 +198,7 @@
             const target = document.getElementById('tab-'+t); if (target) target.classList.add('active');
             const nav = document.getElementById('nav-'+t); if (nav) nav.classList.add('nav-active');
             if (t === 'list') renderListLazy();
+            if (globalData && (t === 'mypage' || t === 'court')) refreshData(globalData.myId);
         }
 
         function updateAttendanceButton(attended) {
@@ -226,7 +221,9 @@
         function toggleMember(el, id) { const ex = el.classList.contains('expanded'); document.querySelectorAll('.m-card').forEach(c => c.classList.remove('expanded')); if(!ex) el.classList.add('expanded'); }
         function toggleAccordion(el) { const item = el.parentElement; const c = el.nextElementSibling; const isActive = item.classList.contains('active'); document.querySelectorAll('.accordion-item').forEach(i => { i.classList.remove('active'); i.querySelector('.accordion-content').style.maxHeight = null; }); if(!isActive) { item.classList.add('active'); c.style.maxHeight = c.scrollHeight + "px"; } }
         function setMode(m) { currentMode = m; document.getElementById('btn-mode-mix').classList.toggle('active', m==='MIX'); document.getElementById('btn-mode-level').classList.toggle('active', m==='LEVEL'); }
-        async function sendFeedback() { const text = document.getElementById('feedback-text').value; if (!text) return; await apiAction('feedback', { message: text }); alert("送信しました！"); document.getElementById('feedback-text').value = ""; }
+        async function startMatching() { if(confirm(`振り分けを開始しますか？`)) postAction('generate_matches', { mode: currentMode }); }
+        async function handleAttendance(action, msg) { if (confirm(msg)) postAction(action); }
+        async function sendFeedback() { const text = document.getElementById('feedback-text').value; if (!text) return; await postAction('feedback', { message: text }); alert("送信しました！"); document.getElementById('feedback-text').value = ""; }
 
         initPortal();
     </script>
