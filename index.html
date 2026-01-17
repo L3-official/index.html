@@ -66,7 +66,6 @@
         .accordion-item.active span { transform: rotate(180deg); opacity: 1; color: var(--l3-orange); }
         .accordion-content { max-height: 0; overflow: hidden; transition: 0.4s; background: #fff; }
         .accordion-inner { padding: 4px 19px 22px; font-size: 0.825rem; line-height: 1.8; color: #4b5563; white-space: pre-wrap; word-break: break-all; }
-        /* 【修正点】ご意見箱のサイズ復元 */
         .feedback-area { width: 100%; height: 100px; min-height: 100px; border-radius: 15px; border: 1px solid #f0f4f8; padding: 12px; margin: 10px 0; outline: none; font-family: inherit; font-size: 0.8rem; background: #fafbfc; box-sizing: border-box; resize: none; }
         .nav { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 380px; background: #01162d; border-radius: 30px; display: flex; justify-content: space-around; padding: 18px 0; z-index: 2000; }
         .nav-item { color: #fff; opacity: 0.4; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; transition: 0.3s; }
@@ -148,6 +147,8 @@
             if (globalData.infoData) renderInfo(globalData.infoData);
             if (globalData && globalData.myId) {
                 renderUI(globalData);
+                // 【修正点】管理者以外はメニューからCourtを消す
+                document.getElementById('nav-court').style.display = globalData.isAdmin ? 'flex' : 'none';
             } else {
                 ['nav-mypage', 'nav-list', 'nav-court'].forEach(id => document.getElementById(id).style.display = 'none');
                 switchTab('info');
@@ -198,6 +199,7 @@
             const target = document.getElementById('tab-'+t); if (target) target.classList.add('active');
             const nav = document.getElementById('nav-'+t); if (nav) nav.classList.add('nav-active');
             if (t === 'list') renderListLazy();
+            // タブを切り替えるたびに最新の状態に同期（最速・リアルタイム）
             if (globalData && (t === 'mypage' || t === 'court')) refreshData(globalData.myId);
         }
 
